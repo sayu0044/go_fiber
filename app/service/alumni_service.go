@@ -61,16 +61,20 @@ func GetAllAlumniService(c *fiber.Ctx, db *sql.DB) error {
 	}
 
 	// Buat response pakai model
-	response := model.AlumniResponse{
-		Data: alumni,
-		Meta: model.MetaInfo{
-			Page:   page,
-			Limit:  limit,
-			Total:  total,
-			Pages:  (total + limit - 1) / limit,
-			SortBy: sortBy,
-			Order:  order,
-			Search: search,
+	response := model.GetAllAlumniResponse{
+		Success: true,
+		Message: "Berhasil mengambil data alumni",
+		Data: model.AlumniData{
+			Items: alumni,
+			Meta: model.MetaInfo{
+				Page:   page,
+				Limit:  limit,
+				Total:  total,
+				Pages:  (total + limit - 1) / limit,
+				SortBy: sortBy,
+				Order:  order,
+				Search: search,
+			},
 		},
 	}
 
@@ -81,75 +85,98 @@ func GetAlumniByIDService(c *fiber.Ctx, db *sql.DB) error {
 	idStr := c.Params("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "ID tidak valid",
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.GetAlumniByIDResponse{
+			Success: false,
+			Message: "ID tidak valid",
+			Data:    model.Alumni{},
 		})
 	}
 
 	alumni, err := repository.GetAlumniByID(db, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"message": "Alumni tidak ditemukan",
-				"success": false,
+			return c.Status(fiber.StatusNotFound).JSON(model.GetAlumniByIDResponse{
+				Success: false,
+				Message: "Alumni tidak ditemukan",
+				Data:    model.Alumni{},
 			})
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal mengambil data alumni: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusInternalServerError).JSON(model.GetAlumniByIDResponse{
+			Success: false,
+			Message: "Gagal mengambil data alumni: " + err.Error(),
+			Data:    model.Alumni{},
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Berhasil mengambil data alumni",
-		"success": true,
-		"data":    alumni,
+	return c.Status(fiber.StatusOK).JSON(model.GetAlumniByIDResponse{
+		Success: true,
+		Message: "Berhasil mengambil data alumni",
+		Data:    *alumni,
 	})
 }
 
 func CreateAlumniService(c *fiber.Ctx, db *sql.DB) error {
 	var req model.CreateAlumniRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Format data tidak valid: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.CreateAlumniResponse{
+			Success: false,
+			Message: "Format data tidak valid: " + err.Error(),
+			Data:    model.Alumni{},
 		})
 	}
 
-    if req.NIM == "" || req.Nama == "" || req.Jurusan == "" || req.Email == "" || req.Password == "" || req.RoleID == 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "NIM, nama, jurusan, email, password, dan role_id wajib diisi",
-			"success": false,
+	if req.NIM == "" || req.Nama == "" || req.Jurusan == "" || req.Email == "" || req.Password == "" || req.RoleID == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(model.CreateAlumniResponse{
+			Success: false,
+			Message: "NIM, nama, jurusan, email, password, dan role_id wajib diisi",
+			Data:    model.Alumni{},
 		})
 	}
 
 	if req.Angkatan <= 0 || req.TahunLulus <= 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Angkatan dan tahun lulus harus lebih dari 0",
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.CreateAlumniResponse{
+			Success: false,
+			Message: "Angkatan dan tahun lulus harus lebih dari 0",
+			Data:    model.Alumni{},
 		})
 	}
 
-    hashed, err := utils.HashPassword(req.Password)
-    if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Gagal memproses password",
-            "success": false,
-        })
-    }
-    alumni, err := repository.CreateAlumni(db, &req, hashed)
+	hashed, err := utils.HashPassword(req.Password)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal membuat alumni: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusInternalServerError).JSON(model.CreateAlumniResponse{
+			Success: false,
+			Message: "Gagal memproses password",
+			Data:    model.Alumni{},
 		})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": "Berhasil membuat alumni",
-		"success": true,
-		"data":    alumni,
+	// Konversi ke repository request
+	repoReq := &model.CreateAlumniRepositoryRequest{
+		NIM:        req.NIM,
+		Nama:       req.Nama,
+		Jurusan:    req.Jurusan,
+		Angkatan:   req.Angkatan,
+		TahunLulus: req.TahunLulus,
+		Email:      req.Email,
+		Password:   hashed,
+		RoleID:     req.RoleID,
+		NoTelepon:  req.NoTelepon,
+		Alamat:     req.Alamat,
+	}
+
+	alumni, err := repository.CreateAlumni(db, repoReq)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(model.CreateAlumniResponse{
+			Success: false,
+			Message: "Gagal membuat alumni: " + err.Error(),
+			Data:    model.Alumni{},
+		})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(model.CreateAlumniResponse{
+		Success: true,
+		Message: "Berhasil membuat alumni",
+		Data:    *alumni,
 	})
 }
 
@@ -157,17 +184,19 @@ func UpdateAlumniService(c *fiber.Ctx, db *sql.DB) error {
 	idStr := c.Params("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "ID tidak valid",
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.UpdateAlumniResponse{
+			Success: false,
+			Message: "ID tidak valid",
+			Data:    model.Alumni{},
 		})
 	}
 
 	var req model.UpdateAlumniRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Format data tidak valid: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.UpdateAlumniResponse{
+			Success: false,
+			Message: "Format data tidak valid: " + err.Error(),
+			Data:    model.Alumni{},
 		})
 	}
 
@@ -175,29 +204,57 @@ func UpdateAlumniService(c *fiber.Ctx, db *sql.DB) error {
 	_, err = repository.GetAlumniByID(db, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"message": "Alumni tidak ditemukan",
-				"success": false,
+			return c.Status(fiber.StatusNotFound).JSON(model.UpdateAlumniResponse{
+				Success: false,
+				Message: "Alumni tidak ditemukan",
+				Data:    model.Alumni{},
 			})
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal mengambil data alumni: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusInternalServerError).JSON(model.UpdateAlumniResponse{
+			Success: false,
+			Message: "Gagal mengambil data alumni: " + err.Error(),
+			Data:    model.Alumni{},
 		})
 	}
 
-	alumni, err := repository.UpdateAlumni(db, id, &req)
+	// Hash password if provided
+	repoReq := &model.UpdateAlumniRepositoryRequest{
+		NIM:        req.NIM,
+		Nama:       req.Nama,
+		Jurusan:    req.Jurusan,
+		Angkatan:   req.Angkatan,
+		TahunLulus: req.TahunLulus,
+		Email:      req.Email,
+		RoleID:     req.RoleID,
+		NoTelepon:  req.NoTelepon,
+		Alamat:     req.Alamat,
+	}
+
+	if req.Password != nil && *req.Password != "" {
+		hashed, err := utils.HashPassword(*req.Password)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(model.UpdateAlumniResponse{
+				Success: false,
+				Message: "Gagal memproses password",
+				Data:    model.Alumni{},
+			})
+		}
+		repoReq.Password = &hashed
+	}
+
+	alumni, err := repository.UpdateAlumni(db, id, repoReq)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal mengupdate alumni: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusInternalServerError).JSON(model.UpdateAlumniResponse{
+			Success: false,
+			Message: "Gagal mengupdate alumni: " + err.Error(),
+			Data:    model.Alumni{},
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Berhasil mengupdate alumni",
-		"success": true,
-		"data":    alumni,
+	return c.Status(fiber.StatusOK).JSON(model.UpdateAlumniResponse{
+		Success: true,
+		Message: "Berhasil mengupdate alumni",
+		Data:    *alumni,
 	})
 }
 
@@ -205,9 +262,9 @@ func DeleteAlumniService(c *fiber.Ctx, db *sql.DB) error {
 	idStr := c.Params("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "ID tidak valid",
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.DeleteAlumniResponse{
+			Success: false,
+			Message: "ID tidak valid",
 		})
 	}
 
@@ -215,28 +272,28 @@ func DeleteAlumniService(c *fiber.Ctx, db *sql.DB) error {
 	_, err = repository.GetAlumniByID(db, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"message": "Alumni tidak ditemukan",
-				"success": false,
+			return c.Status(fiber.StatusNotFound).JSON(model.DeleteAlumniResponse{
+				Success: false,
+				Message: "Alumni tidak ditemukan",
 			})
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal mengambil data alumni: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusInternalServerError).JSON(model.DeleteAlumniResponse{
+			Success: false,
+			Message: "Gagal mengambil data alumni: " + err.Error(),
 		})
 	}
 
 	err = repository.DeleteAlumni(db, id)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal menghapus alumni: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusInternalServerError).JSON(model.DeleteAlumniResponse{
+			Success: false,
+			Message: "Gagal menghapus alumni: " + err.Error(),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Berhasil menghapus alumni",
-		"success": true,
+	return c.Status(fiber.StatusOK).JSON(model.DeleteAlumniResponse{
+		Success: true,
+		Message: "Berhasil menghapus alumni",
 	})
 }
 
@@ -271,11 +328,11 @@ func CheckAlumniService(c *fiber.Ctx, db *sql.DB) error {
 			"success": false,
 		})
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Berhasil mendapatkan data alumni",
-		"success": true,
-		"isAlumni": true,
-		"alumni": alumni,
+	return c.Status(fiber.StatusOK).JSON(model.CheckAlumniResponse{
+		Success:  true,
+		Message:  "Berhasil mendapatkan data alumni",
+		IsAlumni: true,
+		Alumni:   alumni,
 	})
 }
 
@@ -342,15 +399,15 @@ func GetAlumniEmploymentStatusService(c *fiber.Ctx, db *sql.DB) error {
 	totalRecords := len(results)
 	totalPages := (totalRecords + req.Limit - 1) / req.Limit
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Berhasil mengambil data status pekerjaan alumni",
-		"success": true,
-		"data":    results,
-		"pagination": fiber.Map{
-			"current_page": req.Page,
-			"per_page":     req.Limit,
-			"total_records": totalRecords,
-			"total_pages":  totalPages,
+	return c.Status(fiber.StatusOK).JSON(model.GetAlumniEmploymentStatusResponse{
+		Success: true,
+		Message: "Berhasil mengambil data status pekerjaan alumni",
+		Data:    results,
+		Pagination: model.PaginationInfo{
+			CurrentPage:  req.Page,
+			PerPage:      req.Limit,
+			TotalRecords: totalRecords,
+			TotalPages:   totalPages,
 		},
 	})
 }

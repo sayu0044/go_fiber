@@ -20,31 +20,59 @@ type Alumni struct {
 	
 }
 
-// Request/Response DTOs
+// Service Layer Request DTOs
 type CreateAlumniRequest struct {
-	NIM       string  `json:"nim" validate:"required"`
-	Nama      string  `json:"nama" validate:"required"`
-	Jurusan   string  `json:"jurusan" validate:"required"`
-	Angkatan  int     `json:"angkatan" validate:"required"`
-	TahunLulus int    `json:"tahun_lulus" validate:"required"`
-	Email     string  `json:"email" validate:"required,email"`
-    Password  string  `json:"password" validate:"required"`
-    RoleID    int     `json:"role_id" validate:"required"`
-	NoTelepon *string `json:"no_telepon"`
-	Alamat    *string `json:"alamat"`
+	NIM        string  `json:"nim" validate:"required"`
+	Nama       string  `json:"nama" validate:"required"`
+	Jurusan    string  `json:"jurusan" validate:"required"`
+	Angkatan   int     `json:"angkatan" validate:"required"`
+	TahunLulus int     `json:"tahun_lulus" validate:"required"`
+	Email      string  `json:"email" validate:"required,email"`
+	Password   string  `json:"password" validate:"required"`
+	RoleID     int     `json:"role_id" validate:"required"`
+	NoTelepon  *string `json:"no_telepon"`
+	Alamat     *string `json:"alamat"`
+}
+
+// Repository Layer Request
+type CreateAlumniRepositoryRequest struct {
+	NIM        string  `json:"nim"`
+	Nama       string  `json:"nama"`
+	Jurusan    string  `json:"jurusan"`
+	Angkatan   int     `json:"angkatan"`
+	TahunLulus int     `json:"tahun_lulus"`
+	Email      string  `json:"email"`
+	Password   string  `json:"password"`
+	RoleID     int     `json:"role_id"`
+	NoTelepon  *string `json:"no_telepon"`
+	Alamat     *string `json:"alamat"`
 }
 
 type UpdateAlumniRequest struct {
-	NIM       *string `json:"nim"`
-	Nama      *string `json:"nama"`
-	Jurusan   *string `json:"jurusan"`
-	Angkatan  *int    `json:"angkatan"`
-	TahunLulus *int   `json:"tahun_lulus"`
-	Email     *string `json:"email"`
-    Password  *string `json:"password"`
-    RoleID    *int    `json:"role_id"`
-	NoTelepon *string `json:"no_telepon"`
-	Alamat    *string `json:"alamat"`
+	NIM        *string `json:"nim"`
+	Nama       *string `json:"nama"`
+	Jurusan    *string `json:"jurusan"`
+	Angkatan   *int    `json:"angkatan"`
+	TahunLulus *int    `json:"tahun_lulus"`
+	Email      *string `json:"email"`
+	Password   *string `json:"password"`
+	RoleID     *int    `json:"role_id"`
+	NoTelepon  *string `json:"no_telepon"`
+	Alamat     *string `json:"alamat"`
+}
+
+// Repository Layer Request
+type UpdateAlumniRepositoryRequest struct {
+	NIM        *string `json:"nim"`
+	Nama       *string `json:"nama"`
+	Jurusan    *string `json:"jurusan"`
+	Angkatan   *int    `json:"angkatan"`
+	TahunLulus *int    `json:"tahun_lulus"`
+	Email      *string `json:"email"`
+	Password   *string `json:"password"`
+	RoleID     *int    `json:"role_id"`
+	NoTelepon  *string `json:"no_telepon"`
+	Alamat     *string `json:"alamat"`
 }
 
 // Alumni Employment Status Response
@@ -64,14 +92,59 @@ type AlumniEmploymentStatus struct {
 
 // Request for filtering alumni employment status
 type AlumniEmploymentStatusRequest struct {
-	ID                *int    `json:"id" query:"id"`
-	Nama              *string `json:"nama" query:"nama"`
-	Jurusan           *string `json:"jurusan" query:"jurusan"`
-	Angkatan          *int    `json:"angkatan" query:"angkatan"`
-	BidangIndustri    *string `json:"bidang_industri" query:"bidang_industri"`
-	NamaPerusahaan    *string `json:"nama_perusahaan" query:"nama_perusahaan"`
-	PosisiJabatan     *string `json:"posisi_jabatan" query:"posisi_jabatan"`
-	LebihDari1Tahun   *int    `json:"lebih_dari_1_tahun" query:"lebih_dari_1_tahun"`
-	Page              int     `json:"page" query:"page"`
-	Limit             int     `json:"limit" query:"limit"`
+	ID              *int    `json:"id" query:"id"`
+	Nama            *string `json:"nama" query:"nama"`
+	Jurusan         *string `json:"jurusan" query:"jurusan"`
+	Angkatan        *int    `json:"angkatan" query:"angkatan"`
+	BidangIndustri  *string `json:"bidang_industri" query:"bidang_industri"`
+	NamaPerusahaan  *string `json:"nama_perusahaan" query:"nama_perusahaan"`
+	PosisiJabatan   *string `json:"posisi_jabatan" query:"posisi_jabatan"`
+	LebihDari1Tahun *int    `json:"lebih_dari_1_tahun" query:"lebih_dari_1_tahun"`
+	Page            int     `json:"page" query:"page"`
+	Limit           int     `json:"limit" query:"limit"`
+}
+
+// Response Structs
+type GetAlumniByIDResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Data    Alumni `json:"data"`
+}
+
+type CreateAlumniResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Data    Alumni `json:"data"`
+}
+
+type UpdateAlumniResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Data    Alumni `json:"data"`
+}
+
+type DeleteAlumniResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
+type CheckAlumniResponse struct {
+	Success  bool    `json:"success"`
+	Message  string  `json:"message"`
+	IsAlumni bool    `json:"isAlumni"`
+	Alumni   *Alumni `json:"alumni,omitempty"`
+}
+
+type GetAlumniEmploymentStatusResponse struct {
+	Success    bool                     `json:"success"`
+	Message    string                   `json:"message"`
+	Data       []AlumniEmploymentStatus `json:"data"`
+	Pagination PaginationInfo           `json:"pagination"`
+}
+
+type PaginationInfo struct {
+	CurrentPage  int `json:"current_page"`
+	PerPage      int `json:"per_page"`
+	TotalRecords int `json:"total_records"`
+	TotalPages   int `json:"total_pages"`
 }

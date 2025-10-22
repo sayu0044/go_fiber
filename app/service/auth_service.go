@@ -37,13 +37,24 @@ func LoginService(c *fiber.Ctx, db *sql.DB) error {
     if !utils.CheckPassword(req.Password, passwordHash) {
         return c.Status(401).JSON(fiber.Map{"error": "Email atau password salah"})
     }
-    user.Username = user.Email
-    token, err := utils.GenerateToken(user)
-    if err != nil {
-        return c.Status(500).JSON(fiber.Map{"error": "Gagal generate token"})
-    }
-    response := model.LoginResponse{User: user, Token: token}
-    return c.JSON(fiber.Map{"success": true, "message": "Login berhasil", "data": response})
+	user.Username = user.Email
+	token, err := utils.GenerateToken(user)
+	if err != nil {
+		return c.Status(500).JSON(model.LoginResponse{
+			Success: false,
+			Message: "Gagal generate token",
+			Data:    model.LoginData{},
+		})
+	}
+
+	return c.JSON(model.LoginResponse{
+		Success: true,
+		Message: "Login berhasil",
+		Data: model.LoginData{
+			User:  user,
+			Token: token,
+		},
+	})
 }
 
 // Handler untuk melihat profile user yang sedang login
@@ -52,13 +63,13 @@ func GetProfileService(c *fiber.Ctx, db *sql.DB) error {
 	username := c.Locals("username").(string)
 	role := c.Locals("role").(string)
 
-	return c.JSON(fiber.Map{
-		"success": true,
-		"message": "Profile berhasil diambil",
-		"data": fiber.Map{
-			"user_id":  userID,
-			"username": username,
-			"role":     role,
+	return c.JSON(model.GetProfileResponse{
+		Success: true,
+		Message: "Profile berhasil diambil",
+		Data: model.ProfileData{
+			UserID:   userID,
+			Username: username,
+			Role:     role,
 		},
 	})
 }

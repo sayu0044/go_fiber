@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Pekerjaan Alumni Services
@@ -35,29 +36,43 @@ func GetAllPekerjaanService(c *fiber.Ctx, db *sql.DB) error {
 	// Ambil data dari repository
 	pekerjaan, err := repository.GetPekerjaanRepo(db, search, sortBy, order, limit, offset)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"error": "Failed to fetch pekerjaan",
+		return c.Status(500).JSON(model.GetAllPekerjaanResponse{
+			Success: false,
+			Message: "Failed to fetch pekerjaan",
+			Data: model.PekerjaanData{
+				Items: []model.PekerjaanAlumni{},
+				Meta:  model.MetaInfo{},
+			},
 		})
 	}
 
 	total, err := repository.CountPekerjaanRepo(db, search)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"error": "Failed to count pekerjaan",
+		return c.Status(500).JSON(model.GetAllPekerjaanResponse{
+			Success: false,
+			Message: "Failed to count pekerjaan",
+			Data: model.PekerjaanData{
+				Items: []model.PekerjaanAlumni{},
+				Meta:  model.MetaInfo{},
+			},
 		})
 	}
 
 	// Buat response pakai model
-	response := model.PekerjaanResponse{
-		Data: pekerjaan,
-		Meta: model.MetaInfo{
-			Page:   page,
-			Limit:  limit,
-			Total:  total,
-			Pages:  (total + limit - 1) / limit,
-			SortBy: sortBy,
-			Order:  order,
-			Search: search,
+	response := model.GetAllPekerjaanResponse{
+		Success: true,
+		Message: "Berhasil mengambil data pekerjaan",
+		Data: model.PekerjaanData{
+			Items: pekerjaan,
+			Meta: model.MetaInfo{
+				Page:   page,
+				Limit:  limit,
+				Total:  total,
+				Pages:  (total + limit - 1) / limit,
+				SortBy: sortBy,
+				Order:  order,
+				Search: search,
+			},
 		},
 	}
 
@@ -68,30 +83,33 @@ func GetPekerjaanByIDService(c *fiber.Ctx, db *sql.DB) error {
 	idStr := c.Params("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "ID tidak valid",
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.GetPekerjaanAlumniByIDResponse{
+			Success: false,
+			Message: "ID tidak valid",
+			Data:    model.PekerjaanAlumni{},
 		})
 	}
 
 	pekerjaan, err := repository.GetPekerjaanByID(db, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"message": "Pekerjaan tidak ditemukan",
-				"success": false,
+			return c.Status(fiber.StatusNotFound).JSON(model.GetPekerjaanAlumniByIDResponse{
+				Success: false,
+				Message: "Pekerjaan tidak ditemukan",
+				Data:    model.PekerjaanAlumni{},
 			})
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal mengambil data pekerjaan: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusInternalServerError).JSON(model.GetPekerjaanAlumniByIDResponse{
+			Success: false,
+			Message: "Gagal mengambil data pekerjaan: " + err.Error(),
+			Data:    model.PekerjaanAlumni{},
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Berhasil mengambil data pekerjaan",
-		"success": true,
-		"data":    pekerjaan,
+	return c.Status(fiber.StatusOK).JSON(model.GetPekerjaanAlumniByIDResponse{
+		Success: true,
+		Message: "Berhasil mengambil data pekerjaan",
+		Data:    *pekerjaan,
 	})
 }
 
@@ -99,9 +117,10 @@ func GetPekerjaanByAlumniIDService(c *fiber.Ctx, db *sql.DB) error {
 	alumniIDStr := c.Params("alumni_id")
 	alumniID, err := strconv.Atoi(alumniIDStr)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "ID alumni tidak valid",
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.GetPekerjaanAlumniByAlumniIDResponse{
+			Success: false,
+			Message: "ID alumni tidak valid",
+			Data:    []model.PekerjaanAlumni{},
 		})
 	}
 
@@ -109,53 +128,59 @@ func GetPekerjaanByAlumniIDService(c *fiber.Ctx, db *sql.DB) error {
 	_, err = repository.GetAlumniByID(db, alumniID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"message": "Alumni tidak ditemukan",
-				"success": false,
+			return c.Status(fiber.StatusNotFound).JSON(model.GetPekerjaanAlumniByAlumniIDResponse{
+				Success: false,
+				Message: "Alumni tidak ditemukan",
+				Data:    []model.PekerjaanAlumni{},
 			})
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal mengambil data alumni: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusInternalServerError).JSON(model.GetPekerjaanAlumniByAlumniIDResponse{
+			Success: false,
+			Message: "Gagal mengambil data alumni: " + err.Error(),
+			Data:    []model.PekerjaanAlumni{},
 		})
 	}
 
 	pekerjaan, err := repository.GetPekerjaanByAlumniID(db, alumniID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal mengambil data pekerjaan: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusInternalServerError).JSON(model.GetPekerjaanAlumniByAlumniIDResponse{
+			Success: false,
+			Message: "Gagal mengambil data pekerjaan: " + err.Error(),
+			Data:    []model.PekerjaanAlumni{},
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Berhasil mengambil data pekerjaan alumni",
-		"success": true,
-		"data":    pekerjaan,
+	return c.Status(fiber.StatusOK).JSON(model.GetPekerjaanAlumniByAlumniIDResponse{
+		Success: true,
+		Message: "Berhasil mengambil data pekerjaan alumni",
+		Data:    pekerjaan,
 	})
 }
 
 func CreatePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
-	var req model.CreatePekerjaanRequest
+	var req model.CreatePekerjaanAlumniRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Format data tidak valid: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.CreatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Format data tidak valid: " + err.Error(),
+			Data:    model.PekerjaanAlumni{},
 		})
 	}
 
 	// Basic validation
 	if req.NamaPerusahaan == "" || req.PosisiJabatan == "" || req.BidangIndustri == "" || req.LokasiKerja == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Nama perusahaan, posisi jabatan, bidang industri, dan lokasi kerja wajib diisi",
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.CreatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Nama perusahaan, posisi jabatan, bidang industri, dan lokasi kerja wajib diisi",
+			Data:    model.PekerjaanAlumni{},
 		})
 	}
 
 	if req.StatusPekerjaan != "aktif" && req.StatusPekerjaan != "selesai" && req.StatusPekerjaan != "resigned" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Status pekerjaan harus aktif, selesai, atau resigned",
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.CreatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Status pekerjaan harus aktif, selesai, atau resigned",
+			Data:    model.PekerjaanAlumni{},
 		})
 	}
 
@@ -163,29 +188,70 @@ func CreatePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
 	_, err := repository.GetAlumniByID(db, req.AlumniID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"message": "Alumni tidak ditemukan",
-				"success": false,
+			return c.Status(fiber.StatusNotFound).JSON(model.CreatePekerjaanAlumniResponse{
+				Success: false,
+				Message: "Alumni tidak ditemukan",
+				Data:    model.PekerjaanAlumni{},
 			})
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal mengambil data alumni: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusInternalServerError).JSON(model.CreatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Gagal mengambil data alumni: " + err.Error(),
+			Data:    model.PekerjaanAlumni{},
 		})
 	}
 
-	pekerjaan, err := repository.CreatePekerjaan(db, &req)
+	// Parse tanggal mulai kerja
+	tanggalMulai, err := time.Parse("2006-01-02", req.TanggalMulaiKerja)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal membuat pekerjaan: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.CreatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Format tanggal mulai kerja tidak valid. Gunakan format YYYY-MM-DD",
+			Data:    model.PekerjaanAlumni{},
 		})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": "Berhasil membuat pekerjaan",
-		"success": true,
-		"data":    pekerjaan,
+	// Parse tanggal selesai kerja jika ada
+	var tanggalSelesai *time.Time
+	if req.TanggalSelesaiKerja != nil && *req.TanggalSelesaiKerja != "" {
+		parsed, err := time.Parse("2006-01-02", *req.TanggalSelesaiKerja)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(model.CreatePekerjaanAlumniResponse{
+				Success: false,
+				Message: "Format tanggal selesai kerja tidak valid. Gunakan format YYYY-MM-DD",
+				Data:    model.PekerjaanAlumni{},
+			})
+		}
+		tanggalSelesai = &parsed
+	}
+
+	// Konversi ke repository request
+	repoReq := &model.CreatePekerjaanAlumniRepositoryRequest{
+		AlumniID:            req.AlumniID,
+		NamaPerusahaan:      req.NamaPerusahaan,
+		PosisiJabatan:       req.PosisiJabatan,
+		BidangIndustri:      req.BidangIndustri,
+		LokasiKerja:         req.LokasiKerja,
+		GajiRange:           req.GajiRange,
+		TanggalMulaiKerja:   tanggalMulai,
+		TanggalSelesaiKerja: tanggalSelesai,
+		StatusPekerjaan:     req.StatusPekerjaan,
+		DeskripsiPekerjaan:  req.DeskripsiPekerjaan,
+	}
+
+	pekerjaan, err := repository.CreatePekerjaan(db, repoReq)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(model.CreatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Gagal membuat pekerjaan: " + err.Error(),
+			Data:    model.PekerjaanAlumni{},
+		})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(model.CreatePekerjaanAlumniResponse{
+		Success: true,
+		Message: "Berhasil membuat pekerjaan",
+		Data:    *pekerjaan,
 	})
 }
 
@@ -193,17 +259,19 @@ func UpdatePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
 	idStr := c.Params("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "ID tidak valid",
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.UpdatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "ID tidak valid",
+			Data:    model.PekerjaanAlumni{},
 		})
 	}
 
-	var req model.UpdatePekerjaanRequest
+	var req model.UpdatePekerjaanAlumniRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Format data tidak valid: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.UpdatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Format data tidak valid: " + err.Error(),
+			Data:    model.PekerjaanAlumni{},
 		})
 	}
 
@@ -211,56 +279,78 @@ func UpdatePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
 	_, err = repository.GetPekerjaanByID(db, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"message": "Pekerjaan tidak ditemukan",
-				"success": false,
+			return c.Status(fiber.StatusNotFound).JSON(model.UpdatePekerjaanAlumniResponse{
+				Success: false,
+				Message: "Pekerjaan tidak ditemukan",
+				Data:    model.PekerjaanAlumni{},
 			})
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal mengambil data pekerjaan: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusInternalServerError).JSON(model.UpdatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Gagal mengambil data pekerjaan: " + err.Error(),
+			Data:    model.PekerjaanAlumni{},
 		})
 	}
 
-	// If updating alumni_id, check if alumni exists
-	if req.AlumniID != nil {
-		_, err = repository.GetAlumniByID(db, *req.AlumniID)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-					"message": "Alumni tidak ditemukan",
-					"success": false,
-				})
-			}
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"message": "Gagal mengambil data alumni: " + err.Error(),
-				"success": false,
-			})
-		}
+	// Validate status
+	if req.StatusPekerjaan != "aktif" && req.StatusPekerjaan != "selesai" && req.StatusPekerjaan != "resigned" {
+		return c.Status(fiber.StatusBadRequest).JSON(model.UpdatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Status pekerjaan harus aktif, selesai, atau resigned",
+			Data:    model.PekerjaanAlumni{},
+		})
 	}
 
-	// Validate status if provided
-	if req.StatusPekerjaan != nil {
-		if *req.StatusPekerjaan != "aktif" && *req.StatusPekerjaan != "selesai" && *req.StatusPekerjaan != "resigned" {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"message": "Status pekerjaan harus aktif, selesai, atau resigned",
-				"success": false,
-			})
-		}
-	}
-
-	pekerjaan, err := repository.UpdatePekerjaan(db, id, &req)
+	// Parse tanggal mulai kerja
+	tanggalMulai, err := time.Parse("2006-01-02", req.TanggalMulaiKerja)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal mengupdate pekerjaan: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.UpdatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Format tanggal mulai kerja tidak valid. Gunakan format YYYY-MM-DD",
+			Data:    model.PekerjaanAlumni{},
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Berhasil mengupdate pekerjaan",
-		"success": true,
-		"data":    pekerjaan,
+	// Parse tanggal selesai kerja jika ada
+	var tanggalSelesai *time.Time
+	if req.TanggalSelesaiKerja != nil && *req.TanggalSelesaiKerja != "" {
+		parsed, err := time.Parse("2006-01-02", *req.TanggalSelesaiKerja)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(model.UpdatePekerjaanAlumniResponse{
+				Success: false,
+				Message: "Format tanggal selesai kerja tidak valid. Gunakan format YYYY-MM-DD",
+				Data:    model.PekerjaanAlumni{},
+			})
+		}
+		tanggalSelesai = &parsed
+	}
+
+	// Konversi ke repository request
+	repoReq := &model.UpdatePekerjaanAlumniRepositoryRequest{
+		NamaPerusahaan:      req.NamaPerusahaan,
+		PosisiJabatan:       req.PosisiJabatan,
+		BidangIndustri:      req.BidangIndustri,
+		LokasiKerja:         req.LokasiKerja,
+		GajiRange:           req.GajiRange,
+		TanggalMulaiKerja:   tanggalMulai,
+		TanggalSelesaiKerja: tanggalSelesai,
+		StatusPekerjaan:     req.StatusPekerjaan,
+		DeskripsiPekerjaan:  req.DeskripsiPekerjaan,
+	}
+
+	pekerjaan, err := repository.UpdatePekerjaan(db, id, repoReq)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(model.UpdatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Gagal mengupdate pekerjaan: " + err.Error(),
+			Data:    model.PekerjaanAlumni{},
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(model.UpdatePekerjaanAlumniResponse{
+		Success: true,
+		Message: "Berhasil mengupdate pekerjaan",
+		Data:    *pekerjaan,
 	})
 }
 
@@ -268,9 +358,9 @@ func DeletePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
 	idStr := c.Params("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "ID tidak valid",
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.HardDeletePekerjaanAlumniResponse{
+			Success: false,
+			Message: "ID tidak valid",
 		})
 	}
 
@@ -278,28 +368,28 @@ func DeletePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
 	_, err = repository.GetPekerjaanByID(db, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"message": "Pekerjaan tidak ditemukan",
-				"success": false,
+			return c.Status(fiber.StatusNotFound).JSON(model.HardDeletePekerjaanAlumniResponse{
+				Success: false,
+				Message: "Pekerjaan tidak ditemukan",
 			})
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal mengambil data pekerjaan: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusInternalServerError).JSON(model.HardDeletePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Gagal mengambil data pekerjaan: " + err.Error(),
 		})
 	}
 
 	err = repository.DeletePekerjaan(db, id)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal menghapus pekerjaan: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusInternalServerError).JSON(model.HardDeletePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Gagal menghapus pekerjaan: " + err.Error(),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Berhasil menghapus pekerjaan",
-		"success": true,
+	return c.Status(fiber.StatusOK).JSON(model.HardDeletePekerjaanAlumniResponse{
+		Success: true,
+		Message: "Berhasil menghapus pekerjaan",
 	})
 }
 
@@ -373,16 +463,12 @@ func ListDeletedPekerjaanService(c *fiber.Ctx, db *sql.DB) error {
         fmt.Printf("DEBUG: User access - showing %d pekerjaan for user %d\n", len(filteredPekerjaan), userID)
     }
     
-    response := model.PekerjaanResponse{
-        Data: filteredPekerjaan,
-        Meta: model.MetaInfo{
-            Page:  page,
-            Limit: limit,
-            Total: total,
-            Pages: (total + limit - 1) / limit,
-        },
-    }
-    return c.Status(fiber.StatusOK).JSON(response)
+	response := model.GetSoftDeletedPekerjaanAlumniResponse{
+		Success: true,
+		Message: "Berhasil mengambil daftar pekerjaan yang dihapus",
+		Data:    filteredPekerjaan,
+	}
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
 func RestorePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
@@ -419,44 +505,44 @@ func RestorePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
             "success": false,
         })
     }
-    pekerjaan, err := repository.GetPekerjaanWithDeletedByID(db, id)
-    if err != nil {
-        if err == sql.ErrNoRows {
-            return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-                "message": "Pekerjaan tidak ditemukan",
-                "success": false,
-            })
-        }
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Gagal mengambil data pekerjaan: " + err.Error(),
-            "success": false,
-        })
-    }
-    if pekerjaan.IsDeleted == nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "Pekerjaan tidak dalam status terhapus",
-            "success": false,
-        })
-    }
-    if userRole == "user" {
-        if pekerjaan.AlumniID != userID {
-            return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-                "message": "Anda hanya dapat merestore pekerjaan milik sendiri",
-                "success": false,
-            })
-        }
-    }
-    // Admin can restore any pekerjaan (no additional check needed)
-    if err := repository.RestorePekerjaan(db, id); err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Gagal merestore pekerjaan: " + err.Error(),
-            "success": false,
-        })
-    }
-    return c.Status(fiber.StatusOK).JSON(fiber.Map{
-        "message": "Berhasil merestore pekerjaan",
-        "success": true,
-    })
+	pekerjaan, err := repository.GetPekerjaanWithDeletedByID(db, id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Status(fiber.StatusNotFound).JSON(model.RestorePekerjaanAlumniResponse{
+				Success: false,
+				Message: "Pekerjaan tidak ditemukan",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(model.RestorePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Gagal mengambil data pekerjaan: " + err.Error(),
+		})
+	}
+	if pekerjaan.IsDeleted == nil {
+		return c.Status(fiber.StatusBadRequest).JSON(model.RestorePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Pekerjaan tidak dalam status terhapus",
+		})
+	}
+	if userRole == "user" {
+		if pekerjaan.AlumniID != userID {
+			return c.Status(fiber.StatusForbidden).JSON(model.RestorePekerjaanAlumniResponse{
+				Success: false,
+				Message: "Anda hanya dapat merestore pekerjaan milik sendiri",
+			})
+		}
+	}
+	// Admin can restore any pekerjaan (no additional check needed)
+	if err := repository.RestorePekerjaan(db, id); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(model.RestorePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Gagal merestore pekerjaan: " + err.Error(),
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(model.RestorePekerjaanAlumniResponse{
+		Success: true,
+		Message: "Berhasil merestore pekerjaan",
+	})
 }
 
 func HardDeletePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
@@ -493,82 +579,80 @@ func HardDeletePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
             "success": false,
         })
     }
-    pekerjaan, err := repository.GetPekerjaanWithDeletedByID(db, id)
-    if err != nil {
-        if err == sql.ErrNoRows {
-            return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-                "message": "Pekerjaan tidak ditemukan",
-                "success": false,
-            })
-        }
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Gagal mengambil data pekerjaan: " + err.Error(),
-            "success": false,
-        })
-    }
-    if pekerjaan.IsDeleted == nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "Pekerjaan harus di-soft delete terlebih dahulu sebelum hard delete",
-            "success": false,
-        })
-    }
-    if userRole == "user" {
-        if pekerjaan.AlumniID != userID {
-            return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-                "message": "Anda hanya dapat menghapus permanen pekerjaan milik sendiri",
-                "success": false,
-            })
-        }
-    }
-    // Admin can hard delete any pekerjaan (no additional check needed)
-    if err := repository.HardDeletePekerjaan(db, id); err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Gagal menghapus permanen pekerjaan: " + err.Error(),
-            "success": false,
-        })
-    }
-    return c.Status(fiber.StatusOK).JSON(fiber.Map{
-        "message": "Berhasil menghapus permanen pekerjaan",
-        "success": true,
-    })
+	pekerjaan, err := repository.GetPekerjaanWithDeletedByID(db, id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Status(fiber.StatusNotFound).JSON(model.HardDeletePekerjaanAlumniResponse{
+				Success: false,
+				Message: "Pekerjaan tidak ditemukan",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(model.HardDeletePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Gagal mengambil data pekerjaan: " + err.Error(),
+		})
+	}
+	if pekerjaan.IsDeleted == nil {
+		return c.Status(fiber.StatusBadRequest).JSON(model.HardDeletePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Pekerjaan harus di-soft delete terlebih dahulu sebelum hard delete",
+		})
+	}
+	if userRole == "user" {
+		if pekerjaan.AlumniID != userID {
+			return c.Status(fiber.StatusForbidden).JSON(model.HardDeletePekerjaanAlumniResponse{
+				Success: false,
+				Message: "Anda hanya dapat menghapus permanen pekerjaan milik sendiri",
+			})
+		}
+	}
+	// Admin can hard delete any pekerjaan (no additional check needed)
+	if err := repository.HardDeletePekerjaan(db, id); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(model.HardDeletePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Gagal menghapus permanen pekerjaan: " + err.Error(),
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(model.HardDeletePekerjaanAlumniResponse{
+		Success: true,
+		Message: "Berhasil menghapus permanen pekerjaan",
+	})
 }
 
 func SoftDeletePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
 	idStr := c.Params("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "ID tidak valid",
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.SoftDeletePekerjaanAlumniResponse{
+			Success: false,
+			Message: "ID tidak valid",
 		})
 	}
-
-	
 
 	// Get user info from context
 	userIDInterface := c.Locals("user_id")
 	userRoleInterface := c.Locals("role")
-	
+
 	if userIDInterface == nil || userRoleInterface == nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"message": "User tidak terautentikasi",
-			"success": false,
+		return c.Status(fiber.StatusUnauthorized).JSON(model.SoftDeletePekerjaanAlumniResponse{
+			Success: false,
+			Message: "User tidak terautentikasi",
 		})
 	}
-	
+
 	userID, ok := userIDInterface.(int)
 	if !ok {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "User ID tidak valid",
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.SoftDeletePekerjaanAlumniResponse{
+			Success: false,
+			Message: "User ID tidak valid",
 		})
 	}
-	
+
 	userRole, ok := userRoleInterface.(string)
 	if !ok {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Role tidak valid",
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.SoftDeletePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Role tidak valid",
 		})
 	}
 
@@ -576,22 +660,22 @@ func SoftDeletePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
 	pekerjaan, err := repository.GetPekerjaanWithDeletedByID(db, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"message": "Pekerjaan tidak ditemukan",
-				"success": false,
+			return c.Status(fiber.StatusNotFound).JSON(model.SoftDeletePekerjaanAlumniResponse{
+				Success: false,
+				Message: "Pekerjaan tidak ditemukan",
 			})
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal mengambil data pekerjaan: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusInternalServerError).JSON(model.SoftDeletePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Gagal mengambil data pekerjaan: " + err.Error(),
 		})
 	}
 
 	// Check if already soft deleted
 	if pekerjaan.IsDeleted != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Pekerjaan sudah dihapus sebelumnya",
-			"success": false,
+		return c.Status(fiber.StatusBadRequest).JSON(model.SoftDeletePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Pekerjaan sudah dihapus sebelumnya",
 		})
 	}
 
@@ -599,9 +683,9 @@ func SoftDeletePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
 	if userRole == "user" {
 		// User can only delete their own pekerjaan
 		if pekerjaan.AlumniID != userID {
-			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-				"message": "Anda hanya dapat menghapus pekerjaan yang dimiliki sendiri",
-				"success": false,
+			return c.Status(fiber.StatusForbidden).JSON(model.SoftDeletePekerjaanAlumniResponse{
+				Success: false,
+				Message: "Anda hanya dapat menghapus pekerjaan yang dimiliki sendiri",
 			})
 		}
 	}
@@ -610,15 +694,15 @@ func SoftDeletePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
 	// Perform soft delete
 	err = repository.SoftDeletePekerjaan(db, id)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Gagal menghapus pekerjaan: " + err.Error(),
-			"success": false,
+		return c.Status(fiber.StatusInternalServerError).JSON(model.SoftDeletePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Gagal menghapus pekerjaan: " + err.Error(),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Berhasil menghapus pekerjaan",
-		"success": true,
+	return c.Status(fiber.StatusOK).JSON(model.SoftDeletePekerjaanAlumniResponse{
+		Success: true,
+		Message: "Berhasil menghapus pekerjaan",
 	})
 }
 

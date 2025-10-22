@@ -61,7 +61,7 @@ func GetPekerjaanByAlumniID(db *sql.DB, alumniID int) ([]model.PekerjaanAlumni, 
 	return pekerjaan, nil
 }
 
-func CreatePekerjaan(db *sql.DB, req *model.CreatePekerjaanRequest) (*model.PekerjaanAlumni, error) {
+func CreatePekerjaan(db *sql.DB, req *model.CreatePekerjaanAlumniRepositoryRequest) (*model.PekerjaanAlumni, error) {
 	query := `INSERT INTO pekerjaan_alumni (alumni_id, nama_perusahaan, posisi_jabatan, bidang_industri, lokasi_kerja, gaji_range, tanggal_mulai_kerja, tanggal_selesai_kerja, status_pekerjaan, deskripsi_pekerjaan, created_at, updated_at) 
 			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id, created_at, updated_at`
 	
@@ -93,74 +93,36 @@ func CreatePekerjaan(db *sql.DB, req *model.CreatePekerjaanRequest) (*model.Peke
 	return pekerjaan, nil
 }
 
-func UpdatePekerjaan(db *sql.DB, id int, req *model.UpdatePekerjaanRequest) (*model.PekerjaanAlumni, error) {
+func UpdatePekerjaan(db *sql.DB, id int, req *model.UpdatePekerjaanAlumniRepositoryRequest) (*model.PekerjaanAlumni, error) {
 	// Build dynamic query based on provided fields
-	setParts := []string{}
-	args := []interface{}{}
-	argIndex := 1
-
-	if req.AlumniID != nil {
-		setParts = append(setParts, "alumni_id = $"+fmt.Sprintf("%d", argIndex))
-		args = append(args, *req.AlumniID)
-		argIndex++
+	setParts := []string{
+		"nama_perusahaan = $1",
+		"posisi_jabatan = $2",
+		"bidang_industri = $3",
+		"lokasi_kerja = $4",
+		"gaji_range = $5",
+		"tanggal_mulai_kerja = $6",
+		"tanggal_selesai_kerja = $7",
+		"status_pekerjaan = $8",
+		"deskripsi_pekerjaan = $9",
+		"updated_at = $10",
 	}
-	if req.NamaPerusahaan != nil {
-		setParts = append(setParts, "nama_perusahaan = $"+fmt.Sprintf("%d", argIndex))
-		args = append(args, *req.NamaPerusahaan)
-		argIndex++
-	}
-	if req.PosisiJabatan != nil {
-		setParts = append(setParts, "posisi_jabatan = $"+fmt.Sprintf("%d", argIndex))
-		args = append(args, *req.PosisiJabatan)
-		argIndex++
-	}
-	if req.BidangIndustri != nil {
-		setParts = append(setParts, "bidang_industri = $"+fmt.Sprintf("%d", argIndex))
-		args = append(args, *req.BidangIndustri)
-		argIndex++
-	}
-	if req.LokasiKerja != nil {
-		setParts = append(setParts, "lokasi_kerja = $"+fmt.Sprintf("%d", argIndex))
-		args = append(args, *req.LokasiKerja)
-		argIndex++
-	}
-	if req.GajiRange != nil {
-		setParts = append(setParts, "gaji_range = $"+fmt.Sprintf("%d", argIndex))
-		args = append(args, *req.GajiRange)
-		argIndex++
-	}
-	if req.TanggalMulaiKerja != nil {
-		setParts = append(setParts, "tanggal_mulai_kerja = $"+fmt.Sprintf("%d", argIndex))
-		args = append(args, *req.TanggalMulaiKerja)
-		argIndex++
-	}
-	if req.TanggalSelesaiKerja != nil {
-		setParts = append(setParts, "tanggal_selesai_kerja = $"+fmt.Sprintf("%d", argIndex))
-		args = append(args, *req.TanggalSelesaiKerja)
-		argIndex++
-	}
-	if req.StatusPekerjaan != nil {
-		setParts = append(setParts, "status_pekerjaan = $"+fmt.Sprintf("%d", argIndex))
-		args = append(args, *req.StatusPekerjaan)
-		argIndex++
-	}
-	if req.DeskripsiPekerjaan != nil {
-		setParts = append(setParts, "deskripsi_pekerjaan = $"+fmt.Sprintf("%d", argIndex))
-		args = append(args, *req.DeskripsiPekerjaan)
-		argIndex++
+	
+	args := []interface{}{
+		req.NamaPerusahaan,
+		req.PosisiJabatan,
+		req.BidangIndustri,
+		req.LokasiKerja,
+		req.GajiRange,
+		req.TanggalMulaiKerja,
+		req.TanggalSelesaiKerja,
+		req.StatusPekerjaan,
+		req.DeskripsiPekerjaan,
+		time.Now(),
+		id,
 	}
 
-	if len(setParts) == 0 {
-		return GetPekerjaanByID(db, id)
-	}
-
-	setParts = append(setParts, "updated_at = $"+fmt.Sprintf("%d", argIndex))
-	args = append(args, time.Now())
-	argIndex++
-
-	args = append(args, id)
-
-	query := "UPDATE pekerjaan_alumni SET " + strings.Join(setParts, ", ") + " WHERE id = $" + fmt.Sprintf("%d", argIndex) + " RETURNING id, alumni_id, nama_perusahaan, posisi_jabatan, bidang_industri, lokasi_kerja, gaji_range, tanggal_mulai_kerja, tanggal_selesai_kerja, status_pekerjaan, deskripsi_pekerjaan, created_at, updated_at"
+	query := "UPDATE pekerjaan_alumni SET " + strings.Join(setParts, ", ") + " WHERE id = $11 RETURNING id, alumni_id, nama_perusahaan, posisi_jabatan, bidang_industri, lokasi_kerja, gaji_range, tanggal_mulai_kerja, tanggal_selesai_kerja, status_pekerjaan, deskripsi_pekerjaan, created_at, updated_at"
 
 	pekerjaan := new(model.PekerjaanAlumni)
 	err := db.QueryRow(query, args...).Scan(&pekerjaan.ID, &pekerjaan.AlumniID, &pekerjaan.NamaPerusahaan, &pekerjaan.PosisiJabatan, &pekerjaan.BidangIndustri, &pekerjaan.LokasiKerja, &pekerjaan.GajiRange, &pekerjaan.TanggalMulaiKerja, &pekerjaan.TanggalSelesaiKerja, &pekerjaan.StatusPekerjaan, &pekerjaan.DeskripsiPekerjaan, &pekerjaan.CreatedAt, &pekerjaan.UpdatedAt)

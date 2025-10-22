@@ -119,16 +119,16 @@ func GetAlumniByID(db *sql.DB, id int) (*model.Alumni, error) {
 	return alumni, nil
 }
 
-func CreateAlumni(db *sql.DB, req *model.CreateAlumniRequest, hashedPassword string) (*model.Alumni, error) {
-    query := `INSERT INTO alumni (nim, nama, jurusan, angkatan, tahun_lulus, email, role_id, no_telepon, alamat, password, created_at, updated_at) 
+func CreateAlumni(db *sql.DB, req *model.CreateAlumniRepositoryRequest) (*model.Alumni, error) {
+	query := `INSERT INTO alumni (nim, nama, jurusan, angkatan, tahun_lulus, email, role_id, no_telepon, alamat, password, created_at, updated_at) 
               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id, created_at, updated_at`
-	
+
 	now := time.Now()
 	var id int
 	var createdAt, updatedAt time.Time
-	
-    err := db.QueryRow(query, req.NIM, req.Nama, req.Jurusan, req.Angkatan, req.TahunLulus, req.Email, req.RoleID, req.NoTelepon, req.Alamat, hashedPassword, now, now).
-        Scan(&id, &createdAt, &updatedAt)
+
+	err := db.QueryRow(query, req.NIM, req.Nama, req.Jurusan, req.Angkatan, req.TahunLulus, req.Email, req.RoleID, req.NoTelepon, req.Alamat, req.Password, now, now).
+		Scan(&id, &createdAt, &updatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -140,18 +140,18 @@ func CreateAlumni(db *sql.DB, req *model.CreateAlumniRequest, hashedPassword str
 		Jurusan:    req.Jurusan,
 		Angkatan:   req.Angkatan,
 		TahunLulus: req.TahunLulus,
-        Email:      req.Email,
-        RoleID:     req.RoleID,
+		Email:      req.Email,
+		RoleID:     req.RoleID,
 		NoTelepon:  req.NoTelepon,
 		Alamat:     req.Alamat,
-        Password:   hashedPassword,
+		Password:   req.Password,
 		CreatedAt:  createdAt,
 		UpdatedAt:  updatedAt,
 	}
 	return alumni, nil
 }
 
-func UpdateAlumni(db *sql.DB, id int, req *model.UpdateAlumniRequest) (*model.Alumni, error) {
+func UpdateAlumni(db *sql.DB, id int, req *model.UpdateAlumniRepositoryRequest) (*model.Alumni, error) {
 	// Build dynamic query based on provided fields
 	setParts := []string{}
 	args := []interface{}{}
@@ -182,21 +182,21 @@ func UpdateAlumni(db *sql.DB, id int, req *model.UpdateAlumniRequest) (*model.Al
 		args = append(args, *req.TahunLulus)
 		argIndex++
 	}
-    if req.Email != nil {
+	if req.Email != nil {
 		setParts = append(setParts, "email = $"+fmt.Sprintf("%d", argIndex))
 		args = append(args, *req.Email)
 		argIndex++
 	}
-    if req.RoleID != nil {
-        setParts = append(setParts, "role_id = $"+fmt.Sprintf("%d", argIndex))
-        args = append(args, *req.RoleID)
-        argIndex++
-    }
-    if req.Password != nil {
-        setParts = append(setParts, "password = $"+fmt.Sprintf("%d", argIndex))
-        args = append(args, *req.Password)
-        argIndex++
-    }
+	if req.RoleID != nil {
+		setParts = append(setParts, "role_id = $"+fmt.Sprintf("%d", argIndex))
+		args = append(args, *req.RoleID)
+		argIndex++
+	}
+	if req.Password != nil {
+		setParts = append(setParts, "password = $"+fmt.Sprintf("%d", argIndex))
+		args = append(args, *req.Password)
+		argIndex++
+	}
 	if req.NoTelepon != nil {
 		setParts = append(setParts, "no_telepon = $"+fmt.Sprintf("%d", argIndex))
 		args = append(args, *req.NoTelepon)
