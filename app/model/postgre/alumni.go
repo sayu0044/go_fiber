@@ -1,23 +1,21 @@
-package model
+package postgre
 
 import "time"
 
 type Alumni struct {
-	ID          int       `json:"id" db:"id"`
-	NIM         string    `json:"nim" db:"nim"`
-	Nama        string    `json:"nama" db:"nama"`
-	Jurusan     string    `json:"jurusan" db:"jurusan"`
-	Angkatan    int       `json:"angkatan" db:"angkatan"`
-	TahunLulus  int       `json:"tahun_lulus" db:"tahun_lulus"`
-	Email       string    `json:"email" db:"email"`
-    RoleID      int       `json:"role_id" db:"role_id"`
-	NoTelepon   *string   `json:"no_telepon" db:"no_telepon"`
-	Alamat      *string   `json:"alamat" db:"alamat"`
-    Password    string    `json:"-" db:"password"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
-	
-	
+	ID         int       `json:"id" db:"id"`
+	NIM        string    `json:"nim" db:"nim"`
+	Nama       string    `json:"nama" db:"nama"`
+	Jurusan    string    `json:"jurusan" db:"jurusan"`
+	Angkatan   int       `json:"angkatan" db:"angkatan"`
+	TahunLulus int       `json:"tahun_lulus" db:"tahun_lulus"`
+	Email      string    `json:"email" db:"email"`
+	RoleID     int       `json:"role_id" db:"role_id"`
+	NoTelepon  *string   `json:"no_telepon" db:"no_telepon"`
+	Alamat     *string   `json:"alamat" db:"alamat"`
+	Password   string    `json:"-" db:"password"`
+	CreatedAt  time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
 }
 
 // Service Layer Request DTOs
@@ -77,17 +75,17 @@ type UpdateAlumniRepositoryRequest struct {
 
 // Alumni Employment Status Response
 type AlumniEmploymentStatus struct {
-	ID                int       `json:"id" db:"id"`
-	Nama              string    `json:"nama" db:"nama"`
-	Jurusan           string    `json:"jurusan" db:"jurusan"`
-	Angkatan          int       `json:"angkatan" db:"angkatan"`
-	BidangIndustri    *string   `json:"bidang_industri" db:"bidang_industri"`
-	NamaPerusahaan    *string   `json:"nama_perusahaan" db:"nama_perusahaan"`
-	PosisiJabatan     *string   `json:"posisi_jabatan" db:"posisi_jabatan"`
+	ID                int        `json:"id" db:"id"`
+	Nama              string     `json:"nama" db:"nama"`
+	Jurusan           string     `json:"jurusan" db:"jurusan"`
+	Angkatan          int        `json:"angkatan" db:"angkatan"`
+	BidangIndustri    *string    `json:"bidang_industri" db:"bidang_industri"`
+	NamaPerusahaan    *string    `json:"nama_perusahaan" db:"nama_perusahaan"`
+	PosisiJabatan     *string    `json:"posisi_jabatan" db:"posisi_jabatan"`
 	TanggalMulaiKerja *time.Time `json:"tanggal_mulai_kerja" db:"tanggal_mulai_kerja"`
-	GajiRange         *string   `json:"gaji_range" db:"gaji_range"`
-	LebihDari1Tahun   int       `json:"lebih_dari_1_tahun" db:"lebih_dari_1_tahun"`
-	EmploymentCount   int       `json:"employment_count" db:"employment_count"`
+	GajiRange         *string    `json:"gaji_range" db:"gaji_range"`
+	LebihDari1Tahun   int        `json:"lebih_dari_1_tahun" db:"lebih_dari_1_tahun"`
+	EmploymentCount   int        `json:"employment_count" db:"employment_count"`
 }
 
 // Request for filtering alumni employment status

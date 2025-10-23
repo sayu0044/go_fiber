@@ -1,9 +1,9 @@
-package repository
+package postgre
 
 import (
 	"database/sql"
 	"fmt"
-	"go-fiber/app/model"
+	model "go-fiber/app/model/postgre"
 	"log"
 	"strings"
 	"time"
@@ -64,11 +64,11 @@ func GetPekerjaanByAlumniID(db *sql.DB, alumniID int) ([]model.PekerjaanAlumni, 
 func CreatePekerjaan(db *sql.DB, req *model.CreatePekerjaanAlumniRepositoryRequest) (*model.PekerjaanAlumni, error) {
 	query := `INSERT INTO pekerjaan_alumni (alumni_id, nama_perusahaan, posisi_jabatan, bidang_industri, lokasi_kerja, gaji_range, tanggal_mulai_kerja, tanggal_selesai_kerja, status_pekerjaan, deskripsi_pekerjaan, created_at, updated_at) 
 			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id, created_at, updated_at`
-	
+
 	now := time.Now()
 	var id int
 	var createdAt, updatedAt time.Time
-	
+
 	err := db.QueryRow(query, req.AlumniID, req.NamaPerusahaan, req.PosisiJabatan, req.BidangIndustri, req.LokasiKerja, req.GajiRange, req.TanggalMulaiKerja, req.TanggalSelesaiKerja, req.StatusPekerjaan, req.DeskripsiPekerjaan, now, now).
 		Scan(&id, &createdAt, &updatedAt)
 	if err != nil {
@@ -107,7 +107,7 @@ func UpdatePekerjaan(db *sql.DB, id int, req *model.UpdatePekerjaanAlumniReposit
 		"deskripsi_pekerjaan = $9",
 		"updated_at = $10",
 	}
-	
+
 	args := []interface{}{
 		req.NamaPerusahaan,
 		req.PosisiJabatan,
@@ -139,44 +139,38 @@ func DeletePekerjaan(db *sql.DB, id int) error {
 }
 
 func SoftDeletePekerjaan(db *sql.DB, id int) error {
-    query := `UPDATE pekerjaan_alumni SET is_delete = $1 WHERE id = $2`
-    _, err := db.Exec(query, time.Now(), id)
-    return err
+	query := `UPDATE pekerjaan_alumni SET is_delete = $1 WHERE id = $2`
+	_, err := db.Exec(query, time.Now(), id)
+	return err
 }
 
 func RestorePekerjaan(db *sql.DB, id int) error {
-    query := `UPDATE pekerjaan_alumni SET is_delete = NULL WHERE id = $1`
-    _, err := db.Exec(query, id)
-    return err
+	query := `UPDATE pekerjaan_alumni SET is_delete = NULL WHERE id = $1`
+	_, err := db.Exec(query, id)
+	return err
 }
 
 func HardDeletePekerjaan(db *sql.DB, id int) error {
-    query := `DELETE FROM pekerjaan_alumni WHERE id = $1`
-    _, err := db.Exec(query, id)
-    return err
+	query := `DELETE FROM pekerjaan_alumni WHERE id = $1`
+	_, err := db.Exec(query, id)
+	return err
 }
 
-
-
 func GetPekerjaanWithDeletedByID(db *sql.DB, id int) (*model.PekerjaanAlumni, error) {
-    p := new(model.PekerjaanAlumni)
-    query := `SELECT id, alumni_id, nama_perusahaan, posisi_jabatan, bidang_industri,
+	p := new(model.PekerjaanAlumni)
+	query := `SELECT id, alumni_id, nama_perusahaan, posisi_jabatan, bidang_industri,
                      lokasi_kerja, gaji_range, tanggal_mulai_kerja, tanggal_selesai_kerja,
                      status_pekerjaan, deskripsi_pekerjaan, created_at, updated_at, is_delete
               FROM pekerjaan_alumni WHERE id = $1`
-    err := db.QueryRow(query, id).Scan(&p.ID, &p.AlumniID, &p.NamaPerusahaan,
-        &p.PosisiJabatan, &p.BidangIndustri, &p.LokasiKerja, &p.GajiRange,
-        &p.TanggalMulaiKerja, &p.TanggalSelesaiKerja, &p.StatusPekerjaan,
-        &p.DeskripsiPekerjaan, &p.CreatedAt, &p.UpdatedAt, &p.IsDeleted)
-    if err != nil {
-        return nil, err
-    }
-    return p, nil
+	err := db.QueryRow(query, id).Scan(&p.ID, &p.AlumniID, &p.NamaPerusahaan,
+		&p.PosisiJabatan, &p.BidangIndustri, &p.LokasiKerja, &p.GajiRange,
+		&p.TanggalMulaiKerja, &p.TanggalSelesaiKerja, &p.StatusPekerjaan,
+		&p.DeskripsiPekerjaan, &p.CreatedAt, &p.UpdatedAt, &p.IsDeleted)
+	if err != nil {
+		return nil, err
+	}
+	return p, nil
 }
-
-
-
-
 
 // GetPekerjaanRepo -> ambil data pekerjaan alumni dari DB dengan pagination, sorting, dan search
 func GetPekerjaanRepo(db *sql.DB, search, sortBy, order string, limit, offset int) ([]model.PekerjaanAlumni, error) {
@@ -254,4 +248,3 @@ func CountPekerjaanRepo(db *sql.DB, search string) (int, error) {
 	}
 	return total, nil
 }
-

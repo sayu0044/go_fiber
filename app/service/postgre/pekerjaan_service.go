@@ -1,14 +1,15 @@
-package service
+package postgre
 
 import (
 	"database/sql"
 	"fmt"
-	"go-fiber/app/model"
-	"go-fiber/app/repository"
-	"github.com/gofiber/fiber/v2"
+	model "go-fiber/app/model/postgre"
+	repository "go-fiber/app/repository/postgre"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 // Pekerjaan Alumni Services
@@ -394,75 +395,75 @@ func DeletePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
 }
 
 func ListDeletedPekerjaanService(c *fiber.Ctx, db *sql.DB) error {
-    page, _ := strconv.Atoi(c.Query("page", "1"))
-    limit, _ := strconv.Atoi(c.Query("limit", "10"))
-    if page < 1 {
-        page = 1
-    }
-    if limit <= 0 || limit > 100 {
-        limit = 10
-    }
-    offset := (page - 1) * limit
-    
-    // Get user info for access control
-    userIDInterface := c.Locals("user_id")
-    userRoleInterface := c.Locals("role")
-    
-    if userIDInterface == nil || userRoleInterface == nil {
-        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-            "message": "User tidak terautentikasi",
-            "success": false,
-        })
-    }
-    
-    userID, ok := userIDInterface.(int)
-    if !ok {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "User ID tidak valid",
-            "success": false,
-        })
-    }
-    
-    userRole, ok := userRoleInterface.(string)
-    if !ok {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "Role tidak valid",
-            "success": false,
-        })
-    }
-    
-    // Debug logging
-    fmt.Printf("DEBUG: userID=%d, userRole=%s, offset=%d, limit=%d\n", userID, userRole, offset, limit)
-    
-    pekerjaan, total, err := repository.GetDeletedPekerjaanRepo(db, offset, limit)
-    if err != nil {
-        fmt.Printf("DEBUG: Error from repository: %v\n", err)
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "message": "Gagal mengambil daftar pekerjaan yang dihapus: " + err.Error(),
-            "success": false,
-        })
-    }
-    
-    fmt.Printf("DEBUG: Retrieved %d pekerjaan, total=%d\n", len(pekerjaan), total)
-    
-    // Filter data based on user role
-    var filteredPekerjaan []model.PekerjaanAlumni
-    if userRole == "admin" {
-        // Admin can see all deleted pekerjaan
-        filteredPekerjaan = pekerjaan
-        fmt.Printf("DEBUG: Admin access - showing all %d pekerjaan\n", len(filteredPekerjaan))
-    } else {
-        // User can only see their own deleted pekerjaan
-        for _, p := range pekerjaan {
-            if p.AlumniID == userID {
-                filteredPekerjaan = append(filteredPekerjaan, p)
-            }
-        }
-        // Recalculate total for user
-        total = len(filteredPekerjaan)
-        fmt.Printf("DEBUG: User access - showing %d pekerjaan for user %d\n", len(filteredPekerjaan), userID)
-    }
-    
+	page, _ := strconv.Atoi(c.Query("page", "1"))
+	limit, _ := strconv.Atoi(c.Query("limit", "10"))
+	if page < 1 {
+		page = 1
+	}
+	if limit <= 0 || limit > 100 {
+		limit = 10
+	}
+	offset := (page - 1) * limit
+
+	// Get user info for access control
+	userIDInterface := c.Locals("user_id")
+	userRoleInterface := c.Locals("role")
+
+	if userIDInterface == nil || userRoleInterface == nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": "User tidak terautentikasi",
+			"success": false,
+		})
+	}
+
+	userID, ok := userIDInterface.(int)
+	if !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "User ID tidak valid",
+			"success": false,
+		})
+	}
+
+	userRole, ok := userRoleInterface.(string)
+	if !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Role tidak valid",
+			"success": false,
+		})
+	}
+
+	// Debug logging
+	fmt.Printf("DEBUG: userID=%d, userRole=%s, offset=%d, limit=%d\n", userID, userRole, offset, limit)
+
+	pekerjaan, total, err := repository.GetDeletedPekerjaanRepo(db, offset, limit)
+	if err != nil {
+		fmt.Printf("DEBUG: Error from repository: %v\n", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Gagal mengambil daftar pekerjaan yang dihapus: " + err.Error(),
+			"success": false,
+		})
+	}
+
+	fmt.Printf("DEBUG: Retrieved %d pekerjaan, total=%d\n", len(pekerjaan), total)
+
+	// Filter data based on user role
+	var filteredPekerjaan []model.PekerjaanAlumni
+	if userRole == "admin" {
+		// Admin can see all deleted pekerjaan
+		filteredPekerjaan = pekerjaan
+		fmt.Printf("DEBUG: Admin access - showing all %d pekerjaan\n", len(filteredPekerjaan))
+	} else {
+		// User can only see their own deleted pekerjaan
+		for _, p := range pekerjaan {
+			if p.AlumniID == userID {
+				filteredPekerjaan = append(filteredPekerjaan, p)
+			}
+		}
+		// Recalculate total for user
+		total = len(filteredPekerjaan)
+		fmt.Printf("DEBUG: User access - showing %d pekerjaan for user %d\n", len(filteredPekerjaan), userID)
+	}
+
 	response := model.GetSoftDeletedPekerjaanAlumniResponse{
 		Success: true,
 		Message: "Berhasil mengambil daftar pekerjaan yang dihapus",
@@ -472,39 +473,39 @@ func ListDeletedPekerjaanService(c *fiber.Ctx, db *sql.DB) error {
 }
 
 func RestorePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
-    idStr := c.Params("id")
-    id, err := strconv.Atoi(idStr)
-    if err != nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "ID tidak valid",
-            "success": false,
-        })
-    }
-    userIDInterface := c.Locals("user_id")
-    userRoleInterface := c.Locals("role")
-    
-    if userIDInterface == nil || userRoleInterface == nil {
-        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-            "message": "User tidak terautentikasi",
-            "success": false,
-        })
-    }
-    
-    userID, ok := userIDInterface.(int)
-    if !ok {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "User ID tidak valid",
-            "success": false,
-        })
-    }
-    
-    userRole, ok := userRoleInterface.(string)
-    if !ok {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "Role tidak valid",
-            "success": false,
-        })
-    }
+	idStr := c.Params("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "ID tidak valid",
+			"success": false,
+		})
+	}
+	userIDInterface := c.Locals("user_id")
+	userRoleInterface := c.Locals("role")
+
+	if userIDInterface == nil || userRoleInterface == nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": "User tidak terautentikasi",
+			"success": false,
+		})
+	}
+
+	userID, ok := userIDInterface.(int)
+	if !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "User ID tidak valid",
+			"success": false,
+		})
+	}
+
+	userRole, ok := userRoleInterface.(string)
+	if !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Role tidak valid",
+			"success": false,
+		})
+	}
 	pekerjaan, err := repository.GetPekerjaanWithDeletedByID(db, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -546,39 +547,39 @@ func RestorePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
 }
 
 func HardDeletePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
-    idStr := c.Params("id")
-    id, err := strconv.Atoi(idStr)
-    if err != nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "ID tidak valid",
-            "success": false,
-        })
-    }
-    userIDInterface := c.Locals("user_id")
-    userRoleInterface := c.Locals("role")
-    
-    if userIDInterface == nil || userRoleInterface == nil {
-        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-            "message": "User tidak terautentikasi",
-            "success": false,
-        })
-    }
-    
-    userID, ok := userIDInterface.(int)
-    if !ok {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "User ID tidak valid",
-            "success": false,
-        })
-    }
-    
-    userRole, ok := userRoleInterface.(string)
-    if !ok {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "message": "Role tidak valid",
-            "success": false,
-        })
-    }
+	idStr := c.Params("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "ID tidak valid",
+			"success": false,
+		})
+	}
+	userIDInterface := c.Locals("user_id")
+	userRoleInterface := c.Locals("role")
+
+	if userIDInterface == nil || userRoleInterface == nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": "User tidak terautentikasi",
+			"success": false,
+		})
+	}
+
+	userID, ok := userIDInterface.(int)
+	if !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "User ID tidak valid",
+			"success": false,
+		})
+	}
+
+	userRole, ok := userRoleInterface.(string)
+	if !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Role tidak valid",
+			"success": false,
+		})
+	}
 	pekerjaan, err := repository.GetPekerjaanWithDeletedByID(db, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -705,6 +706,3 @@ func SoftDeletePekerjaanService(c *fiber.Ctx, db *sql.DB) error {
 		Message: "Berhasil menghapus pekerjaan",
 	})
 }
-
-
-

@@ -1,4 +1,4 @@
-package model
+package postgre
 
 type Role struct {
 	ID   int    `json:"id" db:"id"`
@@ -42,4 +42,3 @@ type DeleteRoleResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
 }
-

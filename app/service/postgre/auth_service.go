@@ -1,42 +1,43 @@
-package service
+package postgre
 
 import (
-    "database/sql"
-    "go-fiber/app/model"
-    "go-fiber/utils"
-    "github.com/gofiber/fiber/v2"
+	"database/sql"
+	model "go-fiber/app/model/postgre"
+	utils "go-fiber/utils/postgre"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 // Handler untuk login
 func LoginService(c *fiber.Ctx, db *sql.DB) error {
-    type loginRequest struct {
-        Email    string `json:"email"`
-        Password string `json:"password"`
-    }
-    var req loginRequest
-    if err := c.BodyParser(&req); err != nil {
-        return c.Status(400).JSON(fiber.Map{"error": "Request body tidak valid"})
-    }
-    if req.Email == "" || req.Password == "" {
-        return c.Status(400).JSON(fiber.Map{"error": "Email dan password harus diisi"})
-    }
-    var user model.User
-    var passwordHash string
-    err := db.QueryRow(`
+	type loginRequest struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	var req loginRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Request body tidak valid"})
+	}
+	if req.Email == "" || req.Password == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "Email dan password harus diisi"})
+	}
+	var user model.User
+	var passwordHash string
+	err := db.QueryRow(`
         SELECT a.id, a.email, a.password, r.name
         FROM alumni a
         JOIN roles r ON r.id = a.role_id
         WHERE a.email = $1
     `, req.Email).Scan(&user.ID, &user.Email, &passwordHash, &user.Role)
-    if err != nil {
-        if err == sql.ErrNoRows {
-            return c.Status(401).JSON(fiber.Map{"error": "Email atau password salah"})
-        }
-        return c.Status(500).JSON(fiber.Map{"error": "Error database"})
-    }
-    if !utils.CheckPassword(req.Password, passwordHash) {
-        return c.Status(401).JSON(fiber.Map{"error": "Email atau password salah"})
-    }
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Status(401).JSON(fiber.Map{"error": "Email atau password salah"})
+		}
+		return c.Status(500).JSON(fiber.Map{"error": "Error database"})
+	}
+	if !utils.CheckPassword(req.Password, passwordHash) {
+		return c.Status(401).JSON(fiber.Map{"error": "Email atau password salah"})
+	}
 	user.Username = user.Email
 	token, err := utils.GenerateToken(user)
 	if err != nil {

@@ -1,4 +1,4 @@
-package model
+package postgre
 
 // MetaInfo -> informasi pagination & filter
 type MetaInfo struct {

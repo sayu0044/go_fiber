@@ -1,22 +1,22 @@
-package route
+package postgre
 
 import (
 	"database/sql"
-	"go-fiber/app/service"
-	"go-fiber/middleware"
+	service "go-fiber/app/service/postgre"
+	middleware "go-fiber/middleware/postgre"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func AlumniRoutes(app *fiber.App, db *sql.DB) {
-	api := app.Group("/go-fiber")
+	api := app.Group("/go-fiber-postgre")
 
 	api.Post("/login", func(c *fiber.Ctx) error {
 		return service.LoginService(c, db)
 	})
 
 	protected := api.Group("", middleware.AuthRequired())
-	
+
 	protected.Get("/profile", func(c *fiber.Ctx) error {
 		return service.GetProfileService(c, db)
 	})

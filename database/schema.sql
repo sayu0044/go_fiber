@@ -41,6 +41,12 @@ CREATE TABLE pekerjaan_alumni (
     is_delete TIMESTAMP NULL
 );
 
+-- Add comment to explain the is_delete column purpose
+COMMENT ON COLUMN pekerjaan_alumni.is_delete IS 'Timestamp when the record was soft deleted. NULL means not deleted.';
+
+-- Create an index for better performance on queries filtering by is_delete
+CREATE INDEX idx_pekerjaan_alumni_is_delete ON pekerjaan_alumni(is_delete);
+
 INSERT INTO roles (name) VALUES ('admin'), ('user');
 
 INSERT INTO alumni (email, password, role_id, nim, nama, jurusan, angkatan, tahun_lulus, no_telepon, alamat)

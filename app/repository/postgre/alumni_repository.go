@@ -1,9 +1,9 @@
-package repository
+package postgre
 
 import (
 	"database/sql"
 	"fmt"
-	"go-fiber/app/model"
+	model "go-fiber/app/model/postgre"
 	"log"
 	"strings"
 	"time"
@@ -22,7 +22,7 @@ func GetAllAlumni(db *sql.DB) ([]model.Alumni, error) {
 	var alumni []model.Alumni
 	for rows.Next() {
 		var a model.Alumni
-        err := rows.Scan(&a.ID, &a.NIM, &a.Nama, &a.Jurusan, &a.Angkatan, &a.TahunLulus, &a.Email, &a.NoTelepon, &a.Alamat, &a.CreatedAt, &a.UpdatedAt)
+		err := rows.Scan(&a.ID, &a.NIM, &a.Nama, &a.Jurusan, &a.Angkatan, &a.TahunLulus, &a.Email, &a.NoTelepon, &a.Alamat, &a.CreatedAt, &a.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -37,11 +37,11 @@ func GetAlumniRepo(db *sql.DB, search, sortBy, order string, limit, offset int) 
 	log.Printf("=== GetAlumniRepo Debug ===")
 	log.Printf("Search parameters - search: '%s' (len: %d), sortBy: '%s', order: '%s', limit: %d, offset: %d", search, len(search), sortBy, order, limit, offset)
 	log.Printf("Search is empty: %t", search == "")
-	
+
 	// Buat query yang lebih sederhana untuk testing
 	var query string
 	var args []interface{}
-	
+
 	if search == "" {
 		// Jika search kosong, tampilkan semua data
 		query = fmt.Sprintf(`
@@ -79,7 +79,7 @@ func GetAlumniRepo(db *sql.DB, search, sortBy, order string, limit, offset int) 
 	var alumni []model.Alumni
 	for rows.Next() {
 		var a model.Alumni
-        err := rows.Scan(&a.ID, &a.NIM, &a.Nama, &a.Jurusan, &a.Angkatan, &a.TahunLulus, &a.Email, &a.NoTelepon, &a.Alamat, &a.CreatedAt, &a.UpdatedAt)
+		err := rows.Scan(&a.ID, &a.NIM, &a.Nama, &a.Jurusan, &a.Angkatan, &a.TahunLulus, &a.Email, &a.NoTelepon, &a.Alamat, &a.CreatedAt, &a.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -93,7 +93,7 @@ func CountAlumniRepo(db *sql.DB, search string) (int, error) {
 	var total int
 	var countQuery string
 	var args []interface{}
-	
+
 	if search == "" {
 		countQuery = `SELECT COUNT(*) FROM alumni`
 		args = []interface{}{}
@@ -101,7 +101,7 @@ func CountAlumniRepo(db *sql.DB, search string) (int, error) {
 		countQuery = `SELECT COUNT(*) FROM alumni WHERE nama ILIKE $1 OR email ILIKE $1 OR jurusan ILIKE $1 OR nim ILIKE $1`
 		args = []interface{}{"%" + search + "%"}
 	}
-	
+
 	err := db.QueryRow(countQuery, args...).Scan(&total)
 	if err != nil && err != sql.ErrNoRows {
 		return 0, err
@@ -111,8 +111,8 @@ func CountAlumniRepo(db *sql.DB, search string) (int, error) {
 
 func GetAlumniByID(db *sql.DB, id int) (*model.Alumni, error) {
 	alumni := new(model.Alumni)
-    query := `SELECT id, nim, nama, jurusan, angkatan, tahun_lulus, email, role_id, no_telepon, alamat, password, created_at, updated_at FROM alumni WHERE id = $1`
-    err := db.QueryRow(query, id).Scan(&alumni.ID, &alumni.NIM, &alumni.Nama, &alumni.Jurusan, &alumni.Angkatan, &alumni.TahunLulus, &alumni.Email, &alumni.RoleID, &alumni.NoTelepon, &alumni.Alamat, &alumni.Password, &alumni.CreatedAt, &alumni.UpdatedAt)
+	query := `SELECT id, nim, nama, jurusan, angkatan, tahun_lulus, email, role_id, no_telepon, alamat, password, created_at, updated_at FROM alumni WHERE id = $1`
+	err := db.QueryRow(query, id).Scan(&alumni.ID, &alumni.NIM, &alumni.Nama, &alumni.Jurusan, &alumni.Angkatan, &alumni.TahunLulus, &alumni.Email, &alumni.RoleID, &alumni.NoTelepon, &alumni.Alamat, &alumni.Password, &alumni.CreatedAt, &alumni.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -218,10 +218,10 @@ func UpdateAlumni(db *sql.DB, id int, req *model.UpdateAlumniRepositoryRequest) 
 
 	args = append(args, id)
 
-    query := "UPDATE alumni SET " + strings.Join(setParts, ", ") + " WHERE id = $" + fmt.Sprintf("%d", argIndex) + " RETURNING id, nim, nama, jurusan, angkatan, tahun_lulus, email, role_id, no_telepon, alamat, password, created_at, updated_at"
+	query := "UPDATE alumni SET " + strings.Join(setParts, ", ") + " WHERE id = $" + fmt.Sprintf("%d", argIndex) + " RETURNING id, nim, nama, jurusan, angkatan, tahun_lulus, email, role_id, no_telepon, alamat, password, created_at, updated_at"
 
 	alumni := new(model.Alumni)
-    err := db.QueryRow(query, args...).Scan(&alumni.ID, &alumni.NIM, &alumni.Nama, &alumni.Jurusan, &alumni.Angkatan, &alumni.TahunLulus, &alumni.Email, &alumni.RoleID, &alumni.NoTelepon, &alumni.Alamat, &alumni.Password, &alumni.CreatedAt, &alumni.UpdatedAt)
+	err := db.QueryRow(query, args...).Scan(&alumni.ID, &alumni.NIM, &alumni.Nama, &alumni.Jurusan, &alumni.Angkatan, &alumni.TahunLulus, &alumni.Email, &alumni.RoleID, &alumni.NoTelepon, &alumni.Alamat, &alumni.Password, &alumni.CreatedAt, &alumni.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -237,8 +237,8 @@ func DeleteAlumni(db *sql.DB, id int) error {
 // Legacy function for backward compatibility
 func CheckAlumniByNim(db *sql.DB, nim string) (*model.Alumni, error) {
 	alumni := new(model.Alumni)
-    query := `SELECT id, nim, nama, jurusan, angkatan, tahun_lulus, email, role_id, no_telepon, alamat, password, created_at, updated_at FROM alumni WHERE nim = $1`
-    err := db.QueryRow(query, nim).Scan(&alumni.ID, &alumni.NIM, &alumni.Nama, &alumni.Jurusan, &alumni.Angkatan, &alumni.TahunLulus, &alumni.Email, &alumni.RoleID, &alumni.NoTelepon, &alumni.Alamat, &alumni.Password, &alumni.CreatedAt, &alumni.UpdatedAt)
+	query := `SELECT id, nim, nama, jurusan, angkatan, tahun_lulus, email, role_id, no_telepon, alamat, password, created_at, updated_at FROM alumni WHERE nim = $1`
+	err := db.QueryRow(query, nim).Scan(&alumni.ID, &alumni.NIM, &alumni.Nama, &alumni.Jurusan, &alumni.Angkatan, &alumni.TahunLulus, &alumni.Email, &alumni.RoleID, &alumni.NoTelepon, &alumni.Alamat, &alumni.Password, &alumni.CreatedAt, &alumni.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -254,7 +254,7 @@ func GetAlumniEmploymentStatus(db *sql.DB, req *model.AlumniEmploymentStatusRequ
 	if req.Limit <= 0 {
 		req.Limit = 20
 	}
-	
+
 	offset := (req.Page - 1) * req.Limit
 
 	// Build WHERE clause based on filters
@@ -379,4 +379,3 @@ func GetAlumniEmploymentStatus(db *sql.DB, req *model.AlumniEmploymentStatusRequ
 	}
 	return results, nil
 }
-

@@ -2,15 +2,16 @@ package main
 
 import (
 	"go-fiber/config"
+	appConfig "go-fiber/config/postgre"
 	"go-fiber/database"
-	"go-fiber/route"
+	route "go-fiber/route/postgre"
 	"os"
 )
 
 func main() {
 	config.LoadEnv()
 	db := database.ConnectDB()
-	app := config.NewApp(db)
+	app := appConfig.NewApp(db)
 	route.AlumniRoutes(app, db)
 	route.PekerjaanRoutes(app, db)
 	port := os.Getenv("APP_PORT")

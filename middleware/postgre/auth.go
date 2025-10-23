@@ -1,8 +1,9 @@
-package middleware
+package postgre
 
 import (
-	"go-fiber/utils"
+	utils "go-fiber/utils/postgre"
 	"strings"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -51,13 +52,13 @@ func AdminOnly() fiber.Handler {
 }
 
 func UserAndAdmin() fiber.Handler {
-    return func(c *fiber.Ctx) error {
-        role, ok := c.Locals("role").(string)
-        if !ok || (role != "admin" && role != "user") {
-            return c.Status(403).JSON(fiber.Map{
-                "error": "Akses ditolak. Hanya untuk role admin atau user",
-            })
-        }
-        return c.Next()
-    }
+	return func(c *fiber.Ctx) error {
+		role, ok := c.Locals("role").(string)
+		if !ok || (role != "admin" && role != "user") {
+			return c.Status(403).JSON(fiber.Map{
+				"error": "Akses ditolak. Hanya untuk role admin atau user",
+			})
+		}
+		return c.Next()
+	}
 }

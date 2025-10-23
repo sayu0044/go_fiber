@@ -1,15 +1,16 @@
-package service
+package postgre
 
 import (
 	"database/sql"
-	"go-fiber/app/model"
-	"go-fiber/app/repository"
-	"github.com/gofiber/fiber/v2"
+	model "go-fiber/app/model/postgre"
+	repository "go-fiber/app/repository/postgre"
+	utils "go-fiber/utils/postgre"
 	"log"
 	"os"
 	"strconv"
 	"strings"
-    "go-fiber/utils"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 // Alumni Services
@@ -20,7 +21,7 @@ func GetAllAlumniService(c *fiber.Ctx, db *sql.DB) error {
 	for key, value := range c.Queries() {
 		log.Printf("Query param '%s': '%s' (len: %d)", key, value, len(value))
 	}
-	
+
 	// Parse query parameters
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	limit, _ := strconv.Atoi(c.Query("limit", "10"))
@@ -297,7 +298,6 @@ func DeleteAlumniService(c *fiber.Ctx, db *sql.DB) error {
 	})
 }
 
-
 // Legacy function for backward compatibility
 func CheckAlumniService(c *fiber.Ctx, db *sql.DB) error {
 	key := c.Params("key")
@@ -318,8 +318,8 @@ func CheckAlumniService(c *fiber.Ctx, db *sql.DB) error {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusOK).JSON(fiber.Map{
-				"message": "Mahasiswa bukan alumni",
-				"success": true,
+				"message":  "Mahasiswa bukan alumni",
+				"success":  true,
 				"isAlumni": false,
 			})
 		}

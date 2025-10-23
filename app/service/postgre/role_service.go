@@ -1,11 +1,12 @@
-package service
+package postgre
 
 import (
-    "database/sql"
-    "go-fiber/app/model"
-    "go-fiber/app/repository"
-    "github.com/gofiber/fiber/v2"
-    "strconv"
+	"database/sql"
+	model "go-fiber/app/model/postgre"
+	repository "go-fiber/app/repository/postgre"
+	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func CreateRoleService(c *fiber.Ctx, db *sql.DB) error {
@@ -144,5 +145,3 @@ func DeleteRoleService(c *fiber.Ctx, db *sql.DB) error {
 		Message: "Berhasil menghapus role",
 	})
 }
-
-

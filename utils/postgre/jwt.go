@@ -1,9 +1,10 @@
-package utils
+package postgre
 
 import (
-    "go-fiber/app/model"
-    "time"
-    "github.com/golang-jwt/jwt/v5"
+	model "go-fiber/app/model/postgre"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 var jwtSecret = []byte("your-secret-key-min-32-characters-long")
@@ -11,8 +12,8 @@ var jwtSecret = []byte("your-secret-key-min-32-characters-long")
 func GenerateToken(user model.User) (string, error) {
 	claims := model.JWTClaims{
 		UserID:   user.ID,
-        Username: user.Username,
-        Role:     user.Role,
+		Username: user.Username,
+		Role:     user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

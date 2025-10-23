@@ -1,10 +1,11 @@
-package config
+package postgre
 
 import (
-	"go-fiber/app/service"
-	"go-fiber/middleware"
-	"github.com/gofiber/fiber/v2"
 	"database/sql"
+	service "go-fiber/app/service/postgre"
+	"go-fiber/middleware"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func NewApp(db *sql.DB) *fiber.App {
