@@ -28,4 +28,7 @@ func PekerjaanRoutes(app *fiber.App, db *mongo.Database) {
 	pekerjaan.Put("/:id", middleware.AdminOnly(), func(c *fiber.Ctx) error {
 		return service.UpdatePekerjaanService(c, db)
 	})
+	pekerjaan.Delete("/:id", middleware.AdminOnly(), func(c *fiber.Ctx) error {
+		return service.DeletePekerjaanService(c, db)
+	})
 }

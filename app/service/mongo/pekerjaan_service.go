@@ -1,6 +1,7 @@
 package mongo
 
 import (
+	"fmt"
 	"go-fiber/app/model/mongo"
 	repository "go-fiber/app/repository/mongo"
 	"strconv"
@@ -161,15 +162,59 @@ func CreatePekerjaanService(c *fiber.Ctx, db *mongoDB.Database) error {
 		})
 	}
 
-	// Basic validation
-	if req.NamaPerusahaan == "" || req.PosisiJabatan == "" || req.BidangIndustri == "" || req.LokasiKerja == "" {
+	// Debug logging untuk melihat data yang diterima
+	fmt.Printf("Received request data: %+v\n", req)
+
+	// Basic validation dengan pesan yang lebih detail
+	if req.AlumniID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(mongo.CreatePekerjaanAlumniResponse{
 			Success: false,
-			Message: "Nama perusahaan, posisi jabatan, bidang industri, dan lokasi kerja wajib diisi",
+			Message: "Alumni ID wajib diisi",
 			Data:    mongo.PekerjaanAlumni{},
 		})
 	}
-
+	if req.NamaPerusahaan == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(mongo.CreatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Nama perusahaan wajib diisi",
+			Data:    mongo.PekerjaanAlumni{},
+		})
+	}
+	if req.PosisiJabatan == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(mongo.CreatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Posisi jabatan wajib diisi",
+			Data:    mongo.PekerjaanAlumni{},
+		})
+	}
+	if req.BidangIndustri == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(mongo.CreatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Bidang industri wajib diisi",
+			Data:    mongo.PekerjaanAlumni{},
+		})
+	}
+	if req.LokasiKerja == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(mongo.CreatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Lokasi kerja wajib diisi",
+			Data:    mongo.PekerjaanAlumni{},
+		})
+	}
+	if req.TanggalMulaiKerja == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(mongo.CreatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Tanggal mulai kerja wajib diisi",
+			Data:    mongo.PekerjaanAlumni{},
+		})
+	}
+	if req.StatusPekerjaan == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(mongo.CreatePekerjaanAlumniResponse{
+			Success: false,
+			Message: "Status pekerjaan wajib diisi",
+			Data:    mongo.PekerjaanAlumni{},
+		})
+	}
 	if req.StatusPekerjaan != "aktif" && req.StatusPekerjaan != "selesai" && req.StatusPekerjaan != "resigned" {
 		return c.Status(fiber.StatusBadRequest).JSON(mongo.CreatePekerjaanAlumniResponse{
 			Success: false,

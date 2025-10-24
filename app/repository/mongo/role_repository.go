@@ -51,6 +51,23 @@ func GetRoleByID(db *mongoDB.Database, id string) (*mongo.Role, error) {
 	return &role, nil
 }
 
+func GetRoleByObjectID(db *mongoDB.Database, id primitive.ObjectID) (*mongo.Role, error) {
+	collection := db.Collection("roles")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var role mongo.Role
+	filter := bson.M{"_id": id}
+	err := collection.FindOne(ctx, filter).Decode(&role)
+	if err != nil {
+		if err == mongoDB.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &role, nil
+}
+
 func GetRoleByName(db *mongoDB.Database, name string) (*mongo.Role, error) {
 	collection := db.Collection("roles")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

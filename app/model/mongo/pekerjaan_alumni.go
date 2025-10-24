@@ -20,6 +20,7 @@ type PekerjaanAlumni struct {
 	DeskripsiPekerjaan  *string            `bson:"deskripsi_pekerjaan,omitempty" json:"deskripsi_pekerjaan,omitempty"`
 	CreatedAt           time.Time          `bson:"created_at" json:"created_at"`
 	UpdatedAt           time.Time          `bson:"updated_at" json:"updated_at"`
+	NamaAlumni          string             `bson:"nama_alumni" json:"nama_alumni"`
 }
 
 // Service Layer Request (tanggal sebagai string)

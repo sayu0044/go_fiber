@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"context"
-	"log"
 	"strings"
 	"time"
 
@@ -69,10 +68,14 @@ func GetPekerjaanByAlumniID(db *mongoDB.Database, alumniID string) ([]mongo.Peke
 		return nil, err
 	}
 
-	filter := bson.M{"alumni_id": objID}
-	opts := options.Find().SetSort(bson.M{"tanggal_mulai_kerja": -1})
+	pipeline := mongoDB.Pipeline{
+		{{Key: "$match", Value: bson.D{{Key: "alumni_id", Value: objID}}}},
+		{{Key: "$lookup", Value: bson.D{{Key: "from", Value: "alumni"}, {Key: "localField", Value: "alumni_id"}, {Key: "foreignField", Value: "_id"}, {Key: "as", Value: "alumniData"}}}},
+		{{Key: "$unwind", Value: bson.D{{Key: "path", Value: "$alumniData"}}}},
+		{{Key: "$addFields", Value: bson.D{{Key: "nama_alumni", Value: "$alumniData.nama"}}}},
+	}
 
-	cursor, err := collection.Find(ctx, filter, opts)
+	cursor, err := collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +179,6 @@ func GetPekerjaanRepo(db *mongoDB.Database, search, sortBy, order string, limit,
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// Build filter
 	filter := bson.M{}
 	if search != "" {
 		filter["$or"] = []bson.M{
@@ -187,22 +189,24 @@ func GetPekerjaanRepo(db *mongoDB.Database, search, sortBy, order string, limit,
 		}
 	}
 
-	// Build sort
 	sortOrder := 1
 	if strings.ToLower(order) == "desc" {
 		sortOrder = -1
 	}
-	sort := bson.M{sortBy: sortOrder}
+	sort := bson.D{{Key: sortBy, Value: sortOrder}}
 
-	// Set options
-	opts := options.Find().
-		SetSort(sort).
-		SetSkip(int64(offset)).
-		SetLimit(int64(limit))
+	pipeline := mongoDB.Pipeline{
+		{{Key: "$match", Value: filter}},
+		{{Key: "$lookup", Value: bson.D{{Key: "from", Value: "alumni"}, {Key: "localField", Value: "alumni_id"}, {Key: "foreignField", Value: "_id"}, {Key: "as", Value: "alumniData"}}}},
+		{{Key: "$unwind", Value: bson.D{{Key: "path", Value: "$alumniData"}}}},
+		{{Key: "$addFields", Value: bson.D{{Key: "nama_alumni", Value: "$alumniData.nama"}}}},
+		{{Key: "$sort", Value: sort}},
+		{{Key: "$skip", Value: offset}},
+		{{Key: "$limit", Value: limit}},
+	}
 
-	cursor, err := collection.Find(ctx, filter, opts)
+	cursor, err := collection.Aggregate(ctx, pipeline)
 	if err != nil {
-		log.Println("Query error:", err)
 		return nil, err
 	}
 	defer cursor.Close(ctx)

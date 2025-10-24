@@ -35,11 +35,17 @@ func LoginService(c *fiber.Ctx, db *mongoDB.Database) error {
 		return c.Status(401).JSON(fiber.Map{"error": "Email atau password salah"})
 	}
 
+	// Get role name from roles collection
+	role, err := repository.GetRoleByObjectID(db, alumni.RoleID)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Error fetching role"})
+	}
+
 	user := mongo.User{
 		ID:       alumni.ID,
 		Username: alumni.Email,
 		Email:    alumni.Email,
-		Role:     "user", // Default role, bisa diambil dari role collection
+		Role:     role.Name,
 	}
 
 	token, err := utils.GenerateToken(user)
