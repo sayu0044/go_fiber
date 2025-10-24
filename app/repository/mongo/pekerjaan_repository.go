@@ -72,7 +72,6 @@ func GetPekerjaanByAlumniID(db *mongoDB.Database, alumniID string) ([]mongo.Peke
 		{{Key: "$match", Value: bson.D{{Key: "alumni_id", Value: objID}}}},
 		{{Key: "$lookup", Value: bson.D{{Key: "from", Value: "alumni"}, {Key: "localField", Value: "alumni_id"}, {Key: "foreignField", Value: "_id"}, {Key: "as", Value: "alumniData"}}}},
 		{{Key: "$unwind", Value: bson.D{{Key: "path", Value: "$alumniData"}}}},
-		{{Key: "$addFields", Value: bson.D{{Key: "nama_alumni", Value: "$alumniData.nama"}}}},
 	}
 
 	cursor, err := collection.Aggregate(ctx, pipeline)
@@ -199,7 +198,6 @@ func GetPekerjaanRepo(db *mongoDB.Database, search, sortBy, order string, limit,
 		{{Key: "$match", Value: filter}},
 		{{Key: "$lookup", Value: bson.D{{Key: "from", Value: "alumni"}, {Key: "localField", Value: "alumni_id"}, {Key: "foreignField", Value: "_id"}, {Key: "as", Value: "alumniData"}}}},
 		{{Key: "$unwind", Value: bson.D{{Key: "path", Value: "$alumniData"}}}},
-		{{Key: "$addFields", Value: bson.D{{Key: "nama_alumni", Value: "$alumniData.nama"}}}},
 		{{Key: "$sort", Value: sort}},
 		{{Key: "$skip", Value: offset}},
 		{{Key: "$limit", Value: limit}},
