@@ -1,13 +1,13 @@
 package main
 
 import (
-	"go-fiber/config"
-	appConfig "go-fiber/config/postgre"
-	"go-fiber/database"
-	mongoRoute "go-fiber/route/mongo"
-	route "go-fiber/route/postgre"
-	"log"
-	"os"
+    "go-fiber/config"
+    appConfig "go-fiber/config/postgre"
+    "go-fiber/database"
+    mongoRoute "go-fiber/route/mongo"
+    route "go-fiber/route/postgre"
+    "log"
+    "os"
 )
 
 func main() {
@@ -27,15 +27,19 @@ func main() {
 		log.Fatalf("MongoDB migration failed: %v", err)
 	}
 
-	// Register MongoDB routes ke app yang sama
+    // Register MongoDB routes ke app yang sama
 	mongoRoute.AlumniRoutes(app, mongoDB)
 	mongoRoute.PekerjaanRoutes(app, mongoDB)
+    mongoRoute.FileRoutes(app, mongoDB)
 
 	port := os.Getenv("APP_PORT")
 	if port == "" {
 		port = "3000"
 	}
 
-	// Start server di satu port saja
+    // Serve uploaded files statically
+    app.Static("/uploads", "./uploads")
+
+    // Start server di satu port saja
 	app.Listen(":" + port)
 }

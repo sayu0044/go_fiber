@@ -62,3 +62,21 @@ func UserAndAdmin() fiber.Handler {
 		return c.Next()
 	}
 }
+
+// UserSelfOrAdmin allows access if request param ":id" equals the JWT user_id or role is admin
+func UserSelfOrAdmin() fiber.Handler {
+    return func(c *fiber.Ctx) error {
+        role, _ := c.Locals("role").(string)
+        if role == "admin" {
+            return c.Next()
+        }
+        uidParam := c.Params("id")
+        uidToken, _ := c.Locals("user_id").(string)
+        if uidParam == "" || uidToken == "" || uidParam != uidToken {
+            return c.Status(403).JSON(fiber.Map{
+                "error": "Akses ditolak. Hanya untuk pemilik akun atau admin",
+            })
+        }
+        return c.Next()
+    }
+}
