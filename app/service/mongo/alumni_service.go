@@ -94,6 +94,14 @@ func GetAlumniByIDService(c *fiber.Ctx, db *mongoDB.Database) error {
 		})
 	}
 
+	if _, err := primitive.ObjectIDFromHex(idStr); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(mongo.GetAlumniByIDResponse{
+			Success: false,
+			Message: "Format ID tidak valid",
+			Data:    mongo.Alumni{},
+		})
+	}
+
 	alumni, err := repository.GetAlumniByID(db, idStr)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(mongo.GetAlumniByIDResponse{
@@ -203,6 +211,14 @@ func UpdateAlumniService(c *fiber.Ctx, db *mongoDB.Database) error {
 		})
 	}
 
+	if _, err := primitive.ObjectIDFromHex(idStr); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(mongo.UpdateAlumniResponse{
+			Success: false,
+			Message: "Format ID tidak valid",
+			Data:    mongo.Alumni{},
+		})
+	}
+
 	var req mongo.UpdateAlumniRequest
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(mongo.UpdateAlumniResponse{
@@ -283,6 +299,13 @@ func DeleteAlumniService(c *fiber.Ctx, db *mongoDB.Database) error {
 		})
 	}
 
+	if _, err := primitive.ObjectIDFromHex(idStr); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(mongo.DeleteAlumniResponse{
+			Success: false,
+			Message: "Format ID tidak valid",
+		})
+	}
+
 	// Check if alumni exists
 	_, err := repository.GetAlumniByID(db, idStr)
 	if err != nil {
@@ -306,16 +329,15 @@ func DeleteAlumniService(c *fiber.Ctx, db *mongoDB.Database) error {
 	})
 }
 
-// Legacy function for backward compatibility
 func CheckAlumniService(c *fiber.Ctx, db *mongoDB.Database) error {
-	key := c.Params("key")
+	key := c.Query("key")
 	if key != os.Getenv("API_KEY") {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Key tidak valid",
 			"success": false,
 		})
 	}
-	nim := c.FormValue("nim")
+	nim := c.Query("nim")
 	if nim == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "NIM wajib diisi",

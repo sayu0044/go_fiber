@@ -14,6 +14,22 @@ import (
 	mongoDB "go.mongodb.org/mongo-driver/mongo"
 )
 
+var acceptedDateLayouts = []string{
+	"2006-01-02",
+	"02-01-2006",
+	"2006/01/02",
+	"02/01/2006",
+}
+
+func parseDateFlexible(dateStr string) (time.Time, error) {
+	for _, layout := range acceptedDateLayouts {
+		if t, err := time.Parse(layout, dateStr); err == nil {
+			return t, nil
+		}
+	}
+	return time.Time{}, fmt.Errorf("format tanggal tidak valid. Gunakan salah satu format: YYYY-MM-DD, DD-MM-YYYY, YYYY/MM/DD, DD/MM/YYYY")
+}
+
 // Pekerjaan Alumni Services
 
 func GetAllPekerjaanService(c *fiber.Ctx, db *mongoDB.Database) error {
@@ -234,7 +250,7 @@ func CreatePekerjaanService(c *fiber.Ctx, db *mongoDB.Database) error {
 	}
 
 	// Parse tanggal mulai kerja
-	tanggalMulai, err := time.Parse("2006-01-02", req.TanggalMulaiKerja)
+	tanggalMulai, err := parseDateFlexible(req.TanggalMulaiKerja)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(mongo.CreatePekerjaanAlumniResponse{
 			Success: false,
@@ -246,7 +262,7 @@ func CreatePekerjaanService(c *fiber.Ctx, db *mongoDB.Database) error {
 	// Parse tanggal selesai kerja jika ada
 	var tanggalSelesai *time.Time
 	if req.TanggalSelesaiKerja != nil && *req.TanggalSelesaiKerja != "" {
-		parsed, err := time.Parse("2006-01-02", *req.TanggalSelesaiKerja)
+		parsed, err := parseDateFlexible(*req.TanggalSelesaiKerja)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(mongo.CreatePekerjaanAlumniResponse{
 				Success: false,
@@ -336,7 +352,7 @@ func UpdatePekerjaanService(c *fiber.Ctx, db *mongoDB.Database) error {
 	}
 
 	// Parse tanggal mulai kerja
-	tanggalMulai, err := time.Parse("2006-01-02", req.TanggalMulaiKerja)
+	tanggalMulai, err := parseDateFlexible(req.TanggalMulaiKerja)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(mongo.UpdatePekerjaanAlumniResponse{
 			Success: false,
@@ -348,7 +364,7 @@ func UpdatePekerjaanService(c *fiber.Ctx, db *mongoDB.Database) error {
 	// Parse tanggal selesai kerja jika ada
 	var tanggalSelesai *time.Time
 	if req.TanggalSelesaiKerja != nil && *req.TanggalSelesaiKerja != "" {
-		parsed, err := time.Parse("2006-01-02", *req.TanggalSelesaiKerja)
+		parsed, err := parseDateFlexible(*req.TanggalSelesaiKerja)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(mongo.UpdatePekerjaanAlumniResponse{
 				Success: false,

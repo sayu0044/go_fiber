@@ -30,4 +30,9 @@ type FileResponse struct {
 	FileSize     int64  `json:"file_size"`
 }
 
-
+// FileUploadResponse merepresentasikan response standar untuk upload file
+type FileUploadResponse struct {
+	Success bool         `json:"success"`
+	Message string       `json:"message"`
+	Data    FileResponse `json:"data"`
+}

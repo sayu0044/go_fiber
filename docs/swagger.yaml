@@ -1,0 +1,1138 @@
+basePath: /go-fiber-mongo
+definitions:
+  fiber.Map:
+    additionalProperties: true
+    type: object
+  mongo.Alumni:
+    properties:
+      alamat:
+        type: string
+      angkatan:
+        type: integer
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      jurusan:
+        type: string
+      nama:
+        type: string
+      nim:
+        type: string
+      no_telepon:
+        type: string
+      role_id:
+        type: string
+      tahun_lulus:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  mongo.AlumniData:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/mongo.Alumni'
+        type: array
+      meta:
+        $ref: '#/definitions/mongo.MetaInfo'
+    type: object
+  mongo.CheckAlumniResponse:
+    properties:
+      alumni:
+        $ref: '#/definitions/mongo.Alumni'
+      isAlumni:
+        type: boolean
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.CreateAlumniRequest:
+    properties:
+      alamat:
+        type: string
+      angkatan:
+        type: integer
+      email:
+        type: string
+      jurusan:
+        type: string
+      nama:
+        type: string
+      nim:
+        type: string
+      no_telepon:
+        type: string
+      password:
+        type: string
+      role_id:
+        type: string
+      tahun_lulus:
+        type: integer
+    required:
+    - angkatan
+    - email
+    - jurusan
+    - nama
+    - nim
+    - password
+    - role_id
+    - tahun_lulus
+    type: object
+  mongo.CreateAlumniResponse:
+    properties:
+      data:
+        $ref: '#/definitions/mongo.Alumni'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.CreatePekerjaanAlumniRequest:
+    properties:
+      alumni_id:
+        type: string
+      bidang_industri:
+        type: string
+      deskripsi_pekerjaan:
+        type: string
+      gaji_range:
+        type: string
+      lokasi_kerja:
+        type: string
+      nama_perusahaan:
+        type: string
+      posisi_jabatan:
+        type: string
+      status_pekerjaan:
+        enum:
+        - aktif
+        - selesai
+        - resigned
+        type: string
+      tanggal_mulai_kerja:
+        type: string
+      tanggal_selesai_kerja:
+        type: string
+    required:
+    - alumni_id
+    - bidang_industri
+    - lokasi_kerja
+    - nama_perusahaan
+    - posisi_jabatan
+    - status_pekerjaan
+    - tanggal_mulai_kerja
+    type: object
+  mongo.CreatePekerjaanAlumniResponse:
+    properties:
+      data:
+        $ref: '#/definitions/mongo.PekerjaanAlumni'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.CreateRoleRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  mongo.CreateRoleResponse:
+    properties:
+      data:
+        $ref: '#/definitions/mongo.Role'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.DeleteAlumniResponse:
+    properties:
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.DeleteRoleResponse:
+    properties:
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.FileResponse:
+    properties:
+      category:
+        type: string
+      file_name:
+        type: string
+      file_path:
+        type: string
+      file_size:
+        type: integer
+      file_type:
+        type: string
+      id:
+        type: string
+      original_name:
+        type: string
+    type: object
+  mongo.FileUploadResponse:
+    properties:
+      data:
+        $ref: '#/definitions/mongo.FileResponse'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.GetAllAlumniResponse:
+    properties:
+      data:
+        $ref: '#/definitions/mongo.AlumniData'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.GetAllPekerjaanResponse:
+    properties:
+      data:
+        $ref: '#/definitions/mongo.PekerjaanData'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.GetAlumniByIDResponse:
+    properties:
+      data:
+        $ref: '#/definitions/mongo.Alumni'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.GetPekerjaanAlumniByAlumniIDResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/mongo.PekerjaanAlumni'
+        type: array
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.GetPekerjaanAlumniByIDResponse:
+    properties:
+      data:
+        $ref: '#/definitions/mongo.PekerjaanAlumni'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.GetProfileResponse:
+    properties:
+      data:
+        $ref: '#/definitions/mongo.ProfileData'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.GetRoleByIDResponse:
+    properties:
+      data:
+        $ref: '#/definitions/mongo.Role'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.ListRolesResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/mongo.Role'
+        type: array
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.LoginData:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/mongo.User'
+    type: object
+  mongo.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  mongo.LoginResponse:
+    properties:
+      data:
+        $ref: '#/definitions/mongo.LoginData'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.MetaInfo:
+    properties:
+      limit:
+        type: integer
+      order:
+        type: string
+      page:
+        type: integer
+      pages:
+        type: integer
+      search:
+        type: string
+      sortBy:
+        type: string
+      total:
+        type: integer
+    type: object
+  mongo.PekerjaanAlumni:
+    properties:
+      alumni_id:
+        type: string
+      bidang_industri:
+        type: string
+      created_at:
+        type: string
+      deskripsi_pekerjaan:
+        type: string
+      gaji_range:
+        type: string
+      id:
+        type: string
+      lokasi_kerja:
+        type: string
+      nama_perusahaan:
+        type: string
+      posisi_jabatan:
+        type: string
+      status_pekerjaan:
+        type: string
+      tanggal_mulai_kerja:
+        type: string
+      tanggal_selesai_kerja:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  mongo.PekerjaanData:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/mongo.PekerjaanAlumni'
+        type: array
+      meta:
+        $ref: '#/definitions/mongo.MetaInfo'
+    type: object
+  mongo.ProfileData:
+    properties:
+      role:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  mongo.Role:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  mongo.UpdateAlumniRequest:
+    properties:
+      alamat:
+        type: string
+      angkatan:
+        type: integer
+      email:
+        type: string
+      jurusan:
+        type: string
+      nama:
+        type: string
+      nim:
+        type: string
+      no_telepon:
+        type: string
+      password:
+        type: string
+      role_id:
+        type: string
+      tahun_lulus:
+        type: integer
+    type: object
+  mongo.UpdateAlumniResponse:
+    properties:
+      data:
+        $ref: '#/definitions/mongo.Alumni'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.UpdatePekerjaanAlumniRequest:
+    properties:
+      bidang_industri:
+        type: string
+      deskripsi_pekerjaan:
+        type: string
+      gaji_range:
+        type: string
+      lokasi_kerja:
+        type: string
+      nama_perusahaan:
+        type: string
+      posisi_jabatan:
+        type: string
+      status_pekerjaan:
+        enum:
+        - aktif
+        - selesai
+        - resigned
+        type: string
+      tanggal_mulai_kerja:
+        type: string
+      tanggal_selesai_kerja:
+        type: string
+    required:
+    - bidang_industri
+    - lokasi_kerja
+    - nama_perusahaan
+    - posisi_jabatan
+    - status_pekerjaan
+    - tanggal_mulai_kerja
+    type: object
+  mongo.UpdatePekerjaanAlumniResponse:
+    properties:
+      data:
+        $ref: '#/definitions/mongo.PekerjaanAlumni'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.UpdateRoleRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  mongo.UpdateRoleResponse:
+    properties:
+      data:
+        $ref: '#/definitions/mongo.Role'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  mongo.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: Dokumentasi API untuk layanan MongoDB pada aplikasi Go Fiber.
+  title: Go Fiber Mongo API
+  version: "1.0"
+paths:
+  /alumni:
+    get:
+      description: Mengambil daftar alumni dengan pagination, sorting, dan pencarian
+      parameters:
+      - description: Halaman
+        in: query
+        name: page
+        type: integer
+      - description: Jumlah per halaman
+        in: query
+        name: limit
+        type: integer
+      - description: Kolom sortir
+        in: query
+        name: sortBy
+        type: string
+      - description: Urutan asc/desc
+        in: query
+        name: order
+        type: string
+      - description: Kata kunci pencarian
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongo.GetAllAlumniResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      security:
+      - BearerAuth: []
+      summary: Daftar alumni
+      tags:
+      - Alumni (Mongo)
+    post:
+      consumes:
+      - application/json
+      description: Membuat data alumni baru
+      parameters:
+      - description: Permintaan pembuatan alumni
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mongo.CreateAlumniRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/mongo.CreateAlumniResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mongo.CreateAlumniResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/mongo.CreateAlumniResponse'
+      security:
+      - BearerAuth: []
+      summary: Tambah alumni
+      tags:
+      - Alumni (Mongo)
+  /alumni/{id}:
+    delete:
+      description: Menghapus data alumni berdasarkan ID
+      parameters:
+      - description: ID Alumni
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongo.DeleteAlumniResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mongo.DeleteAlumniResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/mongo.DeleteAlumniResponse'
+      security:
+      - BearerAuth: []
+      summary: Hapus alumni
+      tags:
+      - Alumni (Mongo)
+    get:
+      description: Mengambil data alumni berdasarkan ID
+      parameters:
+      - description: ID Alumni
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongo.GetAlumniByIDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mongo.GetAlumniByIDResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/mongo.GetAlumniByIDResponse'
+      security:
+      - BearerAuth: []
+      summary: Detail alumni
+      tags:
+      - Alumni (Mongo)
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui data alumni berdasarkan ID
+      parameters:
+      - description: ID Alumni
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Permintaan pembaruan alumni
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mongo.UpdateAlumniRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongo.UpdateAlumniResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mongo.UpdateAlumniResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/mongo.UpdateAlumniResponse'
+      security:
+      - BearerAuth: []
+      summary: Perbarui alumni
+      tags:
+      - Alumni (Mongo)
+  /alumni/check:
+    get:
+      description: Mengecek status alumni menggunakan API key legacy
+      parameters:
+      - description: API key
+        in: query
+        name: key
+        required: true
+        type: string
+      - description: NIM Mahasiswa
+        in: query
+        name: nim
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongo.CheckAlumniResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      security:
+      - BearerAuth: []
+      summary: Cek alumni berdasarkan NIM
+      tags:
+      - Alumni (Mongo)
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Mengembalikan token JWT untuk mengakses API Mongo
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mongo.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongo.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      summary: Login user (Mongo)
+      tags:
+      - Auth (Mongo)
+  /pekerjaan:
+    get:
+      description: Mengambil daftar pekerjaan alumni dengan pagination, sorting, dan
+        pencarian
+      parameters:
+      - description: Halaman
+        in: query
+        name: page
+        type: integer
+      - description: Jumlah per halaman
+        in: query
+        name: limit
+        type: integer
+      - description: Kolom sortir (id, nama_perusahaan, posisi_jabatan, bidang_industri,
+          lokasi_kerja, tanggal_mulai_kerja, status_pekerjaan, created_at)
+        in: query
+        name: sortBy
+        type: string
+      - description: Urutan asc/desc
+        in: query
+        name: order
+        type: string
+      - description: Kata kunci pencarian
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongo.GetAllPekerjaanResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      security:
+      - BearerAuth: []
+      summary: Daftar pekerjaan alumni
+      tags:
+      - Pekerjaan (Mongo)
+    post:
+      consumes:
+      - application/json
+      description: Membuat data pekerjaan baru untuk alumni
+      parameters:
+      - description: Data pekerjaan alumni
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mongo.CreatePekerjaanAlumniRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/mongo.CreatePekerjaanAlumniResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mongo.CreatePekerjaanAlumniResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/mongo.CreatePekerjaanAlumniResponse'
+      security:
+      - BearerAuth: []
+      summary: Tambah pekerjaan alumni
+      tags:
+      - Pekerjaan (Mongo)
+  /pekerjaan/{id}:
+    delete:
+      description: Menghapus data pekerjaan alumni berdasarkan ID pekerjaan
+      parameters:
+      - description: ID Pekerjaan
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      security:
+      - BearerAuth: []
+      summary: Hapus pekerjaan alumni
+      tags:
+      - Pekerjaan (Mongo)
+    get:
+      description: Mengambil detail pekerjaan alumni berdasarkan ID pekerjaan
+      parameters:
+      - description: ID Pekerjaan
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongo.GetPekerjaanAlumniByIDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mongo.GetPekerjaanAlumniByIDResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/mongo.GetPekerjaanAlumniByIDResponse'
+      security:
+      - BearerAuth: []
+      summary: Detail pekerjaan alumni
+      tags:
+      - Pekerjaan (Mongo)
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui data pekerjaan alumni berdasarkan ID pekerjaan
+      parameters:
+      - description: ID Pekerjaan
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Data pekerjaan alumni yang diperbarui
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mongo.UpdatePekerjaanAlumniRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongo.UpdatePekerjaanAlumniResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mongo.UpdatePekerjaanAlumniResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/mongo.UpdatePekerjaanAlumniResponse'
+      security:
+      - BearerAuth: []
+      summary: Perbarui pekerjaan alumni
+      tags:
+      - Pekerjaan (Mongo)
+  /pekerjaan/alumni/{alumni_id}:
+    get:
+      description: Mengambil seluruh pekerjaan milik alumni tertentu
+      parameters:
+      - description: ID Alumni
+        in: path
+        name: alumni_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongo.GetPekerjaanAlumniByAlumniIDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mongo.GetPekerjaanAlumniByAlumniIDResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/mongo.GetPekerjaanAlumniByAlumniIDResponse'
+      security:
+      - BearerAuth: []
+      summary: Daftar pekerjaan per alumni
+      tags:
+      - Pekerjaan (Mongo)
+  /profile:
+    get:
+      description: Mengambil profil user berdasarkan token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongo.GetProfileResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      security:
+      - BearerAuth: []
+      summary: Profil pengguna saat ini
+      tags:
+      - Profile (Mongo)
+  /roles:
+    get:
+      description: Mengambil seluruh role yang tersedia
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongo.ListRolesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      security:
+      - BearerAuth: []
+      summary: Daftar role
+      tags:
+      - Roles (Mongo)
+    post:
+      consumes:
+      - application/json
+      description: Membuat role baru
+      parameters:
+      - description: Permintaan pembuatan role
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mongo.CreateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/mongo.CreateRoleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mongo.CreateRoleResponse'
+      security:
+      - BearerAuth: []
+      summary: Tambah role
+      tags:
+      - Roles (Mongo)
+  /roles/{id}:
+    delete:
+      description: Menghapus role berdasarkan ID
+      parameters:
+      - description: ID Role
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongo.DeleteRoleResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/mongo.DeleteRoleResponse'
+      security:
+      - BearerAuth: []
+      summary: Hapus role
+      tags:
+      - Roles (Mongo)
+    get:
+      description: Mengambil data role berdasarkan ID
+      parameters:
+      - description: ID Role
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongo.GetRoleByIDResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/mongo.GetRoleByIDResponse'
+      security:
+      - BearerAuth: []
+      summary: Detail role
+      tags:
+      - Roles (Mongo)
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui data role berdasarkan ID
+      parameters:
+      - description: ID Role
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Permintaan pembaruan role
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mongo.UpdateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mongo.UpdateRoleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mongo.UpdateRoleResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/mongo.UpdateRoleResponse'
+      security:
+      - BearerAuth: []
+      summary: Perbarui role
+      tags:
+      - Roles (Mongo)
+  /users/{id}/upload/certificate:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload file pdf maksimal 2MB untuk user tertentu
+      parameters:
+      - description: ID User
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: File sertifikat (pdf, max 2MB)
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/mongo.FileUploadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      security:
+      - BearerAuth: []
+      summary: Upload sertifikat/ijazah
+      tags:
+      - Files (Mongo)
+  /users/{id}/upload/photo:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload file foto jpeg/jpg/png maksimal 1MB untuk user tertentu
+      parameters:
+      - description: ID User
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: File foto (jpeg/jpg/png, max 1MB)
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/mongo.FileUploadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/fiber.Map'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/fiber.Map'
+      security:
+      - BearerAuth: []
+      summary: Upload foto profil
+      tags:
+      - Files (Mongo)
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

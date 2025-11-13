@@ -9,21 +9,27 @@ import (
 
 func AuthRequired() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		authHeader := c.Get("Authorization")
+		authHeader := strings.TrimSpace(c.Get("Authorization"))
 		if authHeader == "" {
 			return c.Status(401).JSON(fiber.Map{
 				"error": "Token akses diperlukan",
 			})
 		}
 
-		tokenParts := strings.Split(authHeader, " ")
-		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
-			return c.Status(401).JSON(fiber.Map{
-				"error": "Format token tidak valid",
-			})
+		var token string
+		if strings.Contains(authHeader, " ") {
+			tokenParts := strings.Fields(authHeader)
+			if len(tokenParts) != 2 || !strings.EqualFold(tokenParts[0], "Bearer") {
+				return c.Status(401).JSON(fiber.Map{
+					"error": "Format token tidak valid",
+				})
+			}
+			token = tokenParts[1]
+		} else {
+			token = authHeader
 		}
 
-		claims, err := utils.ValidateToken(tokenParts[1])
+		claims, err := utils.ValidateToken(token)
 		if err != nil {
 			return c.Status(401).JSON(fiber.Map{
 				"error": "Token tidak valid atau expired",

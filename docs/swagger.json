@@ -1,0 +1,1757 @@
+{
+    "schemes": [
+        "http"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "Dokumentasi API untuk layanan MongoDB pada aplikasi Go Fiber.",
+        "title": "Go Fiber Mongo API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:3000",
+    "basePath": "/go-fiber-mongo",
+    "paths": {
+        "/alumni": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengambil daftar alumni dengan pagination, sorting, dan pencarian",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alumni (Mongo)"
+                ],
+                "summary": "Daftar alumni",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Halaman",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Jumlah per halaman",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Kolom sortir",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Urutan asc/desc",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Kata kunci pencarian",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.GetAllAlumniResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Membuat data alumni baru",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alumni (Mongo)"
+                ],
+                "summary": "Tambah alumni",
+                "parameters": [
+                    {
+                        "description": "Permintaan pembuatan alumni",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mongo.CreateAlumniRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.CreateAlumniResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.CreateAlumniResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.CreateAlumniResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/alumni/check": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengecek status alumni menggunakan API key legacy",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alumni (Mongo)"
+                ],
+                "summary": "Cek alumni berdasarkan NIM",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API key",
+                        "name": "key",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "NIM Mahasiswa",
+                        "name": "nim",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.CheckAlumniResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/alumni/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengambil data alumni berdasarkan ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alumni (Mongo)"
+                ],
+                "summary": "Detail alumni",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Alumni",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.GetAlumniByIDResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.GetAlumniByIDResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.GetAlumniByIDResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Memperbarui data alumni berdasarkan ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alumni (Mongo)"
+                ],
+                "summary": "Perbarui alumni",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Alumni",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Permintaan pembaruan alumni",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mongo.UpdateAlumniRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.UpdateAlumniResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.UpdateAlumniResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.UpdateAlumniResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Menghapus data alumni berdasarkan ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alumni (Mongo)"
+                ],
+                "summary": "Hapus alumni",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Alumni",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.DeleteAlumniResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.DeleteAlumniResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.DeleteAlumniResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "description": "Mengembalikan token JWT untuk mengakses API Mongo",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth (Mongo)"
+                ],
+                "summary": "Login user (Mongo)",
+                "parameters": [
+                    {
+                        "description": "Login request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mongo.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/pekerjaan": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengambil daftar pekerjaan alumni dengan pagination, sorting, dan pencarian",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pekerjaan (Mongo)"
+                ],
+                "summary": "Daftar pekerjaan alumni",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Halaman",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Jumlah per halaman",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Kolom sortir (id, nama_perusahaan, posisi_jabatan, bidang_industri, lokasi_kerja, tanggal_mulai_kerja, status_pekerjaan, created_at)",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Urutan asc/desc",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Kata kunci pencarian",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.GetAllPekerjaanResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Membuat data pekerjaan baru untuk alumni",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pekerjaan (Mongo)"
+                ],
+                "summary": "Tambah pekerjaan alumni",
+                "parameters": [
+                    {
+                        "description": "Data pekerjaan alumni",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mongo.CreatePekerjaanAlumniRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.CreatePekerjaanAlumniResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.CreatePekerjaanAlumniResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.CreatePekerjaanAlumniResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/pekerjaan/alumni/{alumni_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengambil seluruh pekerjaan milik alumni tertentu",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pekerjaan (Mongo)"
+                ],
+                "summary": "Daftar pekerjaan per alumni",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Alumni",
+                        "name": "alumni_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.GetPekerjaanAlumniByAlumniIDResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.GetPekerjaanAlumniByAlumniIDResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.GetPekerjaanAlumniByAlumniIDResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/pekerjaan/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengambil detail pekerjaan alumni berdasarkan ID pekerjaan",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pekerjaan (Mongo)"
+                ],
+                "summary": "Detail pekerjaan alumni",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Pekerjaan",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.GetPekerjaanAlumniByIDResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.GetPekerjaanAlumniByIDResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.GetPekerjaanAlumniByIDResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Memperbarui data pekerjaan alumni berdasarkan ID pekerjaan",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pekerjaan (Mongo)"
+                ],
+                "summary": "Perbarui pekerjaan alumni",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Pekerjaan",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data pekerjaan alumni yang diperbarui",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mongo.UpdatePekerjaanAlumniRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.UpdatePekerjaanAlumniResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.UpdatePekerjaanAlumniResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.UpdatePekerjaanAlumniResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Menghapus data pekerjaan alumni berdasarkan ID pekerjaan",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Pekerjaan (Mongo)"
+                ],
+                "summary": "Hapus pekerjaan alumni",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Pekerjaan",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/profile": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengambil profil user berdasarkan token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Profile (Mongo)"
+                ],
+                "summary": "Profil pengguna saat ini",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.GetProfileResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/roles": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengambil seluruh role yang tersedia",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles (Mongo)"
+                ],
+                "summary": "Daftar role",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.ListRolesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Membuat role baru",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles (Mongo)"
+                ],
+                "summary": "Tambah role",
+                "parameters": [
+                    {
+                        "description": "Permintaan pembuatan role",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mongo.CreateRoleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.CreateRoleResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.CreateRoleResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/roles/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengambil data role berdasarkan ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles (Mongo)"
+                ],
+                "summary": "Detail role",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Role",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.GetRoleByIDResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.GetRoleByIDResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Memperbarui data role berdasarkan ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles (Mongo)"
+                ],
+                "summary": "Perbarui role",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Role",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Permintaan pembaruan role",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mongo.UpdateRoleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.UpdateRoleResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.UpdateRoleResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.UpdateRoleResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Menghapus role berdasarkan ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles (Mongo)"
+                ],
+                "summary": "Hapus role",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Role",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.DeleteRoleResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.DeleteRoleResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/upload/certificate": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upload file pdf maksimal 2MB untuk user tertentu",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Files (Mongo)"
+                ],
+                "summary": "Upload sertifikat/ijazah",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID User",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "File sertifikat (pdf, max 2MB)",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.FileUploadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/upload/photo": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upload file foto jpeg/jpg/png maksimal 1MB untuk user tertentu",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Files (Mongo)"
+                ],
+                "summary": "Upload foto profil",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID User",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "File foto (jpeg/jpg/png, max 1MB)",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/mongo.FileUploadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/fiber.Map"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "fiber.Map": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "mongo.Alumni": {
+            "type": "object",
+            "properties": {
+                "alamat": {
+                    "type": "string"
+                },
+                "angkatan": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "jurusan": {
+                    "type": "string"
+                },
+                "nama": {
+                    "type": "string"
+                },
+                "nim": {
+                    "type": "string"
+                },
+                "no_telepon": {
+                    "type": "string"
+                },
+                "role_id": {
+                    "type": "string"
+                },
+                "tahun_lulus": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "mongo.AlumniData": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mongo.Alumni"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/mongo.MetaInfo"
+                }
+            }
+        },
+        "mongo.CheckAlumniResponse": {
+            "type": "object",
+            "properties": {
+                "alumni": {
+                    "$ref": "#/definitions/mongo.Alumni"
+                },
+                "isAlumni": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.CreateAlumniRequest": {
+            "type": "object",
+            "required": [
+                "angkatan",
+                "email",
+                "jurusan",
+                "nama",
+                "nim",
+                "password",
+                "role_id",
+                "tahun_lulus"
+            ],
+            "properties": {
+                "alamat": {
+                    "type": "string"
+                },
+                "angkatan": {
+                    "type": "integer"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "jurusan": {
+                    "type": "string"
+                },
+                "nama": {
+                    "type": "string"
+                },
+                "nim": {
+                    "type": "string"
+                },
+                "no_telepon": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role_id": {
+                    "type": "string"
+                },
+                "tahun_lulus": {
+                    "type": "integer"
+                }
+            }
+        },
+        "mongo.CreateAlumniResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/mongo.Alumni"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.CreatePekerjaanAlumniRequest": {
+            "type": "object",
+            "required": [
+                "alumni_id",
+                "bidang_industri",
+                "lokasi_kerja",
+                "nama_perusahaan",
+                "posisi_jabatan",
+                "status_pekerjaan",
+                "tanggal_mulai_kerja"
+            ],
+            "properties": {
+                "alumni_id": {
+                    "type": "string"
+                },
+                "bidang_industri": {
+                    "type": "string"
+                },
+                "deskripsi_pekerjaan": {
+                    "type": "string"
+                },
+                "gaji_range": {
+                    "type": "string"
+                },
+                "lokasi_kerja": {
+                    "type": "string"
+                },
+                "nama_perusahaan": {
+                    "type": "string"
+                },
+                "posisi_jabatan": {
+                    "type": "string"
+                },
+                "status_pekerjaan": {
+                    "type": "string",
+                    "enum": [
+                        "aktif",
+                        "selesai",
+                        "resigned"
+                    ]
+                },
+                "tanggal_mulai_kerja": {
+                    "type": "string"
+                },
+                "tanggal_selesai_kerja": {
+                    "type": "string"
+                }
+            }
+        },
+        "mongo.CreatePekerjaanAlumniResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/mongo.PekerjaanAlumni"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.CreateRoleRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "mongo.CreateRoleResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/mongo.Role"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.DeleteAlumniResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.DeleteRoleResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.FileResponse": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "file_name": {
+                    "type": "string"
+                },
+                "file_path": {
+                    "type": "string"
+                },
+                "file_size": {
+                    "type": "integer"
+                },
+                "file_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "original_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "mongo.FileUploadResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/mongo.FileResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.GetAllAlumniResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/mongo.AlumniData"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.GetAllPekerjaanResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/mongo.PekerjaanData"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.GetAlumniByIDResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/mongo.Alumni"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.GetPekerjaanAlumniByAlumniIDResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mongo.PekerjaanAlumni"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.GetPekerjaanAlumniByIDResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/mongo.PekerjaanAlumni"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.GetProfileResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/mongo.ProfileData"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.GetRoleByIDResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/mongo.Role"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.ListRolesResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mongo.Role"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.LoginData": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/mongo.User"
+                }
+            }
+        },
+        "mongo.LoginRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "mongo.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/mongo.LoginData"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.MetaInfo": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "order": {
+                    "type": "string"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pages": {
+                    "type": "integer"
+                },
+                "search": {
+                    "type": "string"
+                },
+                "sortBy": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "mongo.PekerjaanAlumni": {
+            "type": "object",
+            "properties": {
+                "alumni_id": {
+                    "type": "string"
+                },
+                "bidang_industri": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deskripsi_pekerjaan": {
+                    "type": "string"
+                },
+                "gaji_range": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lokasi_kerja": {
+                    "type": "string"
+                },
+                "nama_perusahaan": {
+                    "type": "string"
+                },
+                "posisi_jabatan": {
+                    "type": "string"
+                },
+                "status_pekerjaan": {
+                    "type": "string"
+                },
+                "tanggal_mulai_kerja": {
+                    "type": "string"
+                },
+                "tanggal_selesai_kerja": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "mongo.PekerjaanData": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mongo.PekerjaanAlumni"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/mongo.MetaInfo"
+                }
+            }
+        },
+        "mongo.ProfileData": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "mongo.Role": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "mongo.UpdateAlumniRequest": {
+            "type": "object",
+            "properties": {
+                "alamat": {
+                    "type": "string"
+                },
+                "angkatan": {
+                    "type": "integer"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "jurusan": {
+                    "type": "string"
+                },
+                "nama": {
+                    "type": "string"
+                },
+                "nim": {
+                    "type": "string"
+                },
+                "no_telepon": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role_id": {
+                    "type": "string"
+                },
+                "tahun_lulus": {
+                    "type": "integer"
+                }
+            }
+        },
+        "mongo.UpdateAlumniResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/mongo.Alumni"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.UpdatePekerjaanAlumniRequest": {
+            "type": "object",
+            "required": [
+                "bidang_industri",
+                "lokasi_kerja",
+                "nama_perusahaan",
+                "posisi_jabatan",
+                "status_pekerjaan",
+                "tanggal_mulai_kerja"
+            ],
+            "properties": {
+                "bidang_industri": {
+                    "type": "string"
+                },
+                "deskripsi_pekerjaan": {
+                    "type": "string"
+                },
+                "gaji_range": {
+                    "type": "string"
+                },
+                "lokasi_kerja": {
+                    "type": "string"
+                },
+                "nama_perusahaan": {
+                    "type": "string"
+                },
+                "posisi_jabatan": {
+                    "type": "string"
+                },
+                "status_pekerjaan": {
+                    "type": "string",
+                    "enum": [
+                        "aktif",
+                        "selesai",
+                        "resigned"
+                    ]
+                },
+                "tanggal_mulai_kerja": {
+                    "type": "string"
+                },
+                "tanggal_selesai_kerja": {
+                    "type": "string"
+                }
+            }
+        },
+        "mongo.UpdatePekerjaanAlumniResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/mongo.PekerjaanAlumni"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.UpdateRoleRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "mongo.UpdateRoleResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/mongo.Role"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "mongo.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

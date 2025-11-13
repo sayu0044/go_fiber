@@ -9,21 +9,27 @@ import (
 
 func AuthRequired() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		authHeader := c.Get("Authorization")
+		authHeader := strings.TrimSpace(c.Get("Authorization"))
 		if authHeader == "" {
 			return c.Status(401).JSON(fiber.Map{
 				"error": "Token akses diperlukan",
 			})
 		}
 
-		tokenParts := strings.Split(authHeader, " ")
-		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
-			return c.Status(401).JSON(fiber.Map{
-				"error": "Format token tidak valid",
-			})
+		var token string
+		if strings.Contains(authHeader, " ") {
+			tokenParts := strings.Fields(authHeader)
+			if len(tokenParts) != 2 || !strings.EqualFold(tokenParts[0], "Bearer") {
+				return c.Status(401).JSON(fiber.Map{
+					"error": "Format token tidak valid",
+				})
+			}
+			token = tokenParts[1]
+		} else {
+			token = authHeader
 		}
 
-		claims, err := utils.ValidateToken(tokenParts[1])
+		claims, err := utils.ValidateToken(token)
 		if err != nil {
 			return c.Status(401).JSON(fiber.Map{
 				"error": "Token tidak valid atau expired",
@@ -65,18 +71,18 @@ func UserAndAdmin() fiber.Handler {
 
 // UserSelfOrAdmin allows access if request param ":id" equals the JWT user_id or role is admin
 func UserSelfOrAdmin() fiber.Handler {
-    return func(c *fiber.Ctx) error {
-        role, _ := c.Locals("role").(string)
-        if role == "admin" {
-            return c.Next()
-        }
-        uidParam := c.Params("id")
-        uidToken, _ := c.Locals("user_id").(string)
-        if uidParam == "" || uidToken == "" || uidParam != uidToken {
-            return c.Status(403).JSON(fiber.Map{
-                "error": "Akses ditolak. Hanya untuk pemilik akun atau admin",
-            })
-        }
-        return c.Next()
-    }
+	return func(c *fiber.Ctx) error {
+		role, _ := c.Locals("role").(string)
+		if role == "admin" {
+			return c.Next()
+		}
+		uidParam := c.Params("id")
+		uidToken, _ := c.Locals("user_id").(string)
+		if uidParam == "" || uidToken == "" || uidParam != uidToken {
+			return c.Status(403).JSON(fiber.Map{
+				"error": "Akses ditolak. Hanya untuk pemilik akun atau admin",
+			})
+		}
+		return c.Next()
+	}
 }

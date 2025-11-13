@@ -1,15 +1,27 @@
 package main
 
 import (
-    "go-fiber/config"
-    appConfig "go-fiber/config/postgre"
-    "go-fiber/database"
-    mongoRoute "go-fiber/route/mongo"
-    route "go-fiber/route/postgre"
-    "log"
-    "os"
+	"go-fiber/config"
+	appConfig "go-fiber/config/postgre"
+	"go-fiber/database"
+	_ "go-fiber/docs"
+	mongoRoute "go-fiber/route/mongo"
+	route "go-fiber/route/postgre"
+	"log"
+	"os"
+
+	fiberSwagger "github.com/gofiber/swagger"
 )
 
+// @title Go Fiber Mongo API
+// @version 1.0
+// @description Dokumentasi API untuk layanan MongoDB pada aplikasi Go Fiber.
+// @host localhost:3000
+// @BasePath /go-fiber-mongo
+// @schemes http
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	config.LoadEnv()
 
@@ -27,19 +39,22 @@ func main() {
 		log.Fatalf("MongoDB migration failed: %v", err)
 	}
 
-    // Register MongoDB routes ke app yang sama
+	// Register MongoDB routes ke app yang sama
 	mongoRoute.AlumniRoutes(app, mongoDB)
 	mongoRoute.PekerjaanRoutes(app, mongoDB)
-    mongoRoute.FileRoutes(app, mongoDB)
+	mongoRoute.FileRoutes(app, mongoDB)
+
+	// Swagger documentation
+	app.Get("/swagger/*", fiberSwagger.HandlerDefault)
 
 	port := os.Getenv("APP_PORT")
 	if port == "" {
 		port = "3000"
 	}
 
-    // Serve uploaded files statically
-    app.Static("/uploads", "./uploads")
+	// Serve uploaded files statically
+	app.Static("/uploads", "./uploads")
 
-    // Start server di satu port saja
+	// Start server di satu port saja
 	app.Listen(":" + port)
 }
